@@ -1,10 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Network.Wai.Middleware.RequestLogger (logStdoutDev)
+
 import Web.Scotty
 
-main :: IO ()
-main = scotty 3000 $ 
-    get "/" $
-      html "Hello world!"
+import App
 
+main :: IO ()
+main = scotty 3000 $ do
+    middleware logStdoutDev
+    app
