@@ -5,7 +5,7 @@ module App where
 import Web.Scotty
 import Data.Monoid ((<>))
 
-import Views
+import Views(indexV)
 
 app :: ScottyM ()
 app = do
@@ -14,7 +14,7 @@ app = do
 
 
 indexH :: ActionM ()
-indexH = html "Hello World"
+indexH = indexV
 
 
 wordH :: ActionM ()

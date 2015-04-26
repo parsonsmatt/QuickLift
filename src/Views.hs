@@ -1,3 +1,3 @@
-module Views where
+module Views(indexV) where
 
-import Views.Layout
+import Views.Index
