@@ -5,6 +5,8 @@ module App where
 import Web.Scotty
 import Data.Monoid ((<>))
 
+import Views
+
 app :: ScottyM ()
 app = do
     get     "/"         indexH
