@@ -6,6 +6,7 @@ import Web.Scotty
 import Data.Monoid ((<>))
 
 import Views(indexV)
+import Routes(sessionsRoutes)
 
 app :: ScottyM ()
 app = do
@@ -14,10 +15,7 @@ app = do
     get     "/contact"      contactH
     get     "/login"        loginH
     get     "/register"     registerH
-    get     "/sessions"     sessionsH
-    post    "/sessions"     postSessionsH
-    get     "/sessions/:id" getSessionH
-    get     "/sessions/:id/edit" editSessionH
+    sessionsRoutes
     get     "/:word"        wordH
 
 
@@ -41,27 +39,6 @@ registerH :: ActionM ()
 registerH = html "Register!"
 
 
-sessionsH :: ActionM ()
-sessionsH = html "List of your sessions!"
-
-
-postSessionsH :: ActionM ()
-postSessionsH = do
-    session <- param "session"
-    html $ "You posted a session: " <> session <> "!"
-
-
-getSessionH :: ActionM ()
-getSessionH = do
-    sessionId <- param "id"
-    html $ "Requesting Session " <> sessionId <> "!"
-
-
-editSessionH :: ActionM ()
-editSessionH = do
-    sessionId <- param "id"
-    html $ "Editing session " <> sessionId <> "!"
-    
 wordH :: ActionM ()
 wordH = do
     beam <- param "word"
