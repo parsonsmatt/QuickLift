@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Views.Layout where
+module Views.Layout(
+    
+  ) where
 
 import Web.Scotty ()
+
