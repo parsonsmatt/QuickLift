@@ -18,7 +18,6 @@ sessionsRoutes = do
     delete  "/sessions/:id"      deleteSessionH
 
 
-
 indexSessionsH :: ActionM ()
 indexSessionsH = html "List of your sessions!"
 
