@@ -4,6 +4,13 @@ module Views.Home where
 
 import Web.Scotty
 
+import Text.Blaze.Html5 as H
+import Text.Blaze.Html5.Attributes as A
+
+import Views.Layout
 
 homeV :: ActionM ()
-homeV = html "HelloWorld"
+homeV = do
+    headL
+    headerL
+    footerL
