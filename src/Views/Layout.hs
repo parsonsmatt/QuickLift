@@ -9,22 +9,28 @@ module Views.Layout(
 import Web.Scotty ()
 
 import Text.Blaze.Html5            as H
-import Text.Blaze.Html5.Attributes
+import Text.Blaze.Html5.Attributes as A
 
 headL :: Html
 headL = docTypeHtml $ 
-    H.head $ 
+    H.head $ do
         H.title "QuickLift"
+        link ! rel "stylesheet" ! type_ "text/css" ! href "/css/ql.css"
+        script ! src "/js/ql.js" $ ""
+        meta ! A.name "viewport" ! content "width=device-width"
     
 headerL :: Html
 headerL = 
     header $ do
         h1 "QuickLift"
-        H.p $ do
-            H.a ! href "register" $ "Register" 
-            H.a ! href "login" $ "Login"
-            H.a ! href "sessions" $ "Sessions"
+        ul $ do
+            li $
+                a ! href "/register" $ "Register" 
+            li $
+                a ! href "/login" $ "Login"
+            li $
+                a ! href "/sessions" $ "Sessions"
 
 
 footerL :: Html
-footerL = undefined
+footerL = footer "am a footer"

@@ -1,0 +1,3 @@
+/*
+ * QuickLift JS
+ */

@@ -4,7 +4,8 @@ module App where
 
 import Web.Scotty
 import Data.Monoid ((<>))
-
+import Text.Blaze.Html5 (Html)
+import Text.Blaze.Html.Renderer.Text (renderHtml)
 import Views(homeV)
 import Routes(sessionsRoutes)
 
@@ -19,8 +20,11 @@ app = do
     get     "/:word"        wordH
 
 
-indexH :: ActionM ()
-indexH = indexV
+blaze :: Html -> ActionM ()
+blaze = html . renderHtml
+
+homeH :: ActionM ()
+homeH = blaze homeV 
 
 
 aboutH :: ActionM ()
