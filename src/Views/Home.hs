@@ -10,8 +10,4 @@ import Text.Blaze.Html5 as H
 import Views.Layout
 
 homeV :: Html
-homeV = do
-    headL
-    headerL
-    footerL
-
+homeV = templateL $ p "Welcome to QuickLift"

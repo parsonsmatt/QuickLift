@@ -4,12 +4,21 @@ module Views.Layout(
       headL
     , headerL
     , footerL
+    , templateL
   ) where
 
 import Web.Scotty ()
 
 import Text.Blaze.Html5            as H
 import Text.Blaze.Html5.Attributes as A
+
+
+templateL :: Html -> Html
+templateL stuff = do
+    headL
+    headerL
+    stuff
+    footerL
 
 headL :: Html
 headL = docTypeHtml $ 
