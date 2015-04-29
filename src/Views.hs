@@ -1,3 +1,3 @@
-module Views(indexV) where
+module Views(homeV) where
 
-import Views.Index
+import Views.Home

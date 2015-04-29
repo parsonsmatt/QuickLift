@@ -5,12 +5,12 @@ module App where
 import Web.Scotty
 import Data.Monoid ((<>))
 
-import Views(indexV)
+import Views(homeV)
 import Routes(sessionsRoutes)
 
 app :: ScottyM ()
 app = do
-    get     "/"             indexH
+    get     "/"             homeH
     get     "/about"        aboutH
     get     "/contact"      contactH
     get     "/login"        loginH
