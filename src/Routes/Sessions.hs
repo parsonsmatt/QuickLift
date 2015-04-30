@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Routes.Sessions where
+module Routes.Sessions(
+    sessionsRoutes
+  ) where
 
 import Data.Monoid ((<>))
 import Web.Scotty
