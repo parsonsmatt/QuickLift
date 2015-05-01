@@ -5,9 +5,11 @@ module Routes.Sessions(
   ) where
 
 import Data.Monoid ((<>))
+import Data.Text.Lazy as T
 import Web.Scotty
 
 import Views()
+import Models.Session
 
 sessionsRoutes :: ScottyM ()
 sessionsRoutes = do
@@ -41,7 +43,9 @@ deleteSessionH = html "deletin it"
 showSessionH :: ActionM ()
 showSessionH = do
     sessionId <- param "id"
-    html $ "Requesting Session " <> sessionId <> "!"
+    case parseDate sessionId of
+         Just d  -> html $ "Requestion Session from date " <> T.pack (show d)
+         Nothing -> html "Uh what?"
 
 
 editSessionH :: ActionM ()
