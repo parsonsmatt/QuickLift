@@ -27,6 +27,7 @@ executable QuickLift
   build-depends:       base >=4.7 && <4.9
                      , scotty >=0.9.1 && <0.10
                      , wai-extra
+                     , dates >= 0.2.2 && <0.2.3
                      , wai-middleware-static
                      , blaze-html
                      , blaze-markup
