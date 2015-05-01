@@ -26,6 +26,7 @@ executable QuickLift
   other-extensions:    OverloadedStrings 
   build-depends:       base >=4.7 && <4.9
                      , scotty >=0.9.1 && <0.10
+                     , text >= 1.2.0 && <1.3
                      , wai-extra
                      , dates >= 0.2.2 && <0.2.3
                      , wai-middleware-static
