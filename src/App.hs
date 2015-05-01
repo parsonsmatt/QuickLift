@@ -6,6 +6,8 @@ import Web.Scotty
 import Data.Monoid ((<>))
 import Text.Blaze.Html5 (Html)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
+
+import Models()
 import Views(homeV)
 import Routes(sessionsRoutes)
 

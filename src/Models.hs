@@ -2,4 +2,6 @@
 
 module Models where
 
+import Models.Session()
+
 
