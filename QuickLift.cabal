@@ -30,6 +30,8 @@ executable QuickLift
                      , wai-extra
                      , persistent >= 2.1 && <2.2
                      , persistent-postgresql >= 2.1 && <2.2
+                     , persistent-template >= 2.1 && <2.2
+                     , datetime >= 0.2 && < 0.3
                      , wai-middleware-static
                      , blaze-html
                      , blaze-markup
