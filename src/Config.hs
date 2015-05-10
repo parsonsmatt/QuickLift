@@ -23,9 +23,9 @@ newtype ConfigM a = ConfigM
                 MonadIO, MonadReader Config)
 
 type Error = Text
-
 type Action = ActionT Error ConfigM ()
 type App = ScottyT Error ConfigM ()
+
 
 makePool :: IO ConnectionPool
 makePool = runStdoutLoggingT $ createPostgresqlPool connStr 10
