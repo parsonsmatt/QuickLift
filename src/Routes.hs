@@ -4,15 +4,15 @@ module Routes(
       routes
     ) where
 
-import Web.Scotty
+import Web.Scotty.Trans
 import Text.Blaze.Html5 (Html)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 
+import Config
 import Routes.Sessions(sessionsRoutes)
-
 import Views(homeV)
 
-routes :: ScottyM ()
+routes :: App
 routes = do
     get     "/"             homeH
     get     "/about"        aboutH
@@ -22,24 +22,20 @@ routes = do
     sessionsRoutes
 
 
-blaze :: Html -> ActionM ()
+blaze :: Html -> Action
 blaze = html . renderHtml
 
-homeH :: ActionM ()
+homeH :: Action
 homeH = blaze homeV 
 
-
-aboutH :: ActionM ()
+aboutH :: Action
 aboutH = html "This is a weightlifting app!"
 
-
-contactH :: ActionM ()
+contactH :: Action
 contactH = html "Contact me at parsonsmatt@gmail.com!"
 
-
-loginH :: ActionM ()
+loginH :: Action
 loginH = html "Login!"
 
-
-registerH :: ActionM ()
+registerH :: Action
 registerH = html "Register!"
