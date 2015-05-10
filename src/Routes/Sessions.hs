@@ -6,12 +6,12 @@ module Routes.Sessions(
 
 import Data.Monoid ((<>))
 import Data.Text.Lazy as T
-import Web.Scotty
+import Web.Scotty.Trans
 
 import Views()
-import Models.Session
+import Config (App, Action)
 
-sessionsRoutes :: ScottyM ()
+sessionsRoutes :: App
 sessionsRoutes = do
     get     "/sessions"          indexSessionsH
     post    "/sessions"          createSessionH
@@ -22,25 +22,25 @@ sessionsRoutes = do
     delete  "/sessions/:id"      deleteSessionH
 
 
-indexSessionsH :: ActionM ()
+indexSessionsH :: Action
 indexSessionsH = html "List of your sessions!"
 
 
-newSessionH :: ActionM ()
+newSessionH :: Action
 newSessionH = html "makin a new Session"
 
 
-createSessionH :: ActionM ()
+createSessionH :: Action
 createSessionH = do
     session <- param "session"
     html $ "You posted a session: " <> session <> "!"
 
 
-deleteSessionH :: ActionM ()
+deleteSessionH :: Action
 deleteSessionH = html "deletin it"
 
 
-showSessionH :: ActionM ()
+showSessionH :: Action
 showSessionH = do
     sessionId <- param "id"
     case parseDate sessionId of
@@ -48,11 +48,23 @@ showSessionH = do
          Nothing -> html "Uh what?"
 
 
-editSessionH :: ActionM ()
+editSessionH :: Action
 editSessionH = do
     sessionId <- param "id"
     html $ "Editing session " <> sessionId <> "!"
 
 
-updateSessionH :: ActionM ()
+updateSessionH :: Action
 updateSessionH = html "updatesss"
+
+data Date = Date { year :: Int
+                 , month :: Int
+                 , day :: Int
+                 }
+            deriving (Show, Eq, Ord)
+
+parseDate :: Text -> Maybe Date
+parseDate t = case splitOn "-" t of
+                   [y,m,d] -> Just (Date (read $ unpack y) (read $ unpack m) (read $ unpack d))
+                   _ -> Nothing
+              
