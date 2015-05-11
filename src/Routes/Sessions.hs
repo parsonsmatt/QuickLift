@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-
 module Routes.Sessions(
     sessionsRoutes
   ) where
@@ -65,7 +64,7 @@ data Date = Date { year :: Int
             deriving (Show, Eq, Ord)
 
 parseDate :: Text -> Maybe Date
-parseDate t = case splitOn "-" t of
-                   [y,m,d] -> Just (Date (read $ unpack y) (read $ unpack m) (read $ unpack d))
-                   _ -> Nothing
-              
+parseDate t = let toNum = read . unpack
+              in  case splitOn "-" t of
+                       [y,m,d] -> Just Date { year = toNum y, month = toNum m, day = toNum d } 
+                       _ -> Nothing
