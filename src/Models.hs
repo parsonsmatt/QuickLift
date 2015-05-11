@@ -22,8 +22,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 
 Session
     sessionText Text
-    day UTCTime
-    lifterId UserId
+    day UTCTime default=now()
     deriving Show
 
 User

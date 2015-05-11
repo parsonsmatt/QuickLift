@@ -7,7 +7,13 @@ import Data.Monoid ((<>))
 import Data.Text.Lazy as T
 import Web.Scotty.Trans
 
+import Data.Time.Clock
+import Control.Monad.IO.Class (liftIO)
+
+import qualified Database.Persist.Postgresql as DB
+
 import Config
+import Models
 import Views.Sessions
 
 
@@ -33,7 +39,9 @@ newSessionH = html "makin a new Session"
 createSessionH :: Action
 createSessionH = do
     session <- param "session"
-    html $ "You posted a session: " <> session <> "!"
+    time <- liftIO getCurrentTime
+    sId <- runDb $ DB.insert $ Session session time
+    html $ "You posted a session: " <> session <> "!<br>With ID: " <> (T.pack . show) sId
 
 
 deleteSessionH :: Action
@@ -43,9 +51,10 @@ deleteSessionH = html "deletin it"
 showSessionH :: Action
 showSessionH = do
     sessionId <- param "id"
-    case parseDate sessionId of
-         Just d  -> html $ "Requestion Session from date " <> T.pack (show d)
-         Nothing -> html "Uh what?"
+    session <- runDb $ DB.get $ DB.toSqlKey $ read sessionId
+    html $ case session of
+                Just sesh -> "Requested session: <br>" <> (T.pack . show) (sesh :: Session) 
+                Nothing -> "Session not found"
 
 
 editSessionH :: Action
