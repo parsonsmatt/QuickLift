@@ -32,6 +32,8 @@ executable QuickLift
                      , mtl >= 2.2 && < 2.3
                      , persistent >= 2.1 && <2.2
                      , persistent-postgresql >= 2.1 && <2.2
+                     , persistent-template >= 2.1 && <2.2
+                     , time >= 1.4 && < 1.5
                      , wai-middleware-static
                      , monad-logger
                      , blaze-html

@@ -3,11 +3,12 @@
 
 module Config where
 
-import Control.Applicative (Applicative)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader.Class (MonadReader)
-import Control.Monad.Trans.Reader (ReaderT)
-import Control.Monad.Logger (runStdoutLoggingT)
+import Control.Applicative          (Applicative)
+import Control.Monad.IO.Class       (MonadIO, liftIO)
+import Control.Monad.Reader.Class   (MonadReader, asks)
+import Control.Monad.Trans.Class    (MonadTrans, lift)
+import Control.Monad.Trans.Reader   (ReaderT)
+import Control.Monad.Logger         (runStdoutLoggingT)
 
 import Web.Scotty.Trans
 import Data.Text.Lazy
@@ -33,3 +34,9 @@ makePool = runStdoutLoggingT $ createPostgresqlPool connStr 10
 
 connStr :: ConnectionString
 connStr = "host=localhost dbname=QuickLift user=test password=test port=5432"
+
+
+runDb :: (MonadTrans t, MonadIO (t ConfigM)) => SqlPersistT IO a -> t ConfigM a
+runDb query = do
+    pool <- lift $ asks getPool
+    liftIO $ runSqlPool query pool

@@ -10,6 +10,7 @@ import Network.Wai.Middleware.Static
 import Web.Scotty.Trans
 
 import Routes
+import Models
 import Config
 
 main :: IO ()
@@ -20,4 +21,5 @@ main = do
     scottyT 3000 r r $ do
         middleware logStdoutDev
         middleware $ staticPolicy (noDots >-> addBase "static")
+        runDb doMigrations
         routes
