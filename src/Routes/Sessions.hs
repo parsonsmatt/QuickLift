@@ -8,8 +8,9 @@ import Data.Monoid ((<>))
 import Data.Text.Lazy as T
 import Web.Scotty.Trans
 
-import Views()
-import Config (App, Action)
+import Config
+import Views.Sessions
+
 
 sessionsRoutes :: App
 sessionsRoutes = do
@@ -23,7 +24,7 @@ sessionsRoutes = do
 
 
 indexSessionsH :: Action
-indexSessionsH = html "List of your sessions!"
+indexSessionsH = indexSessionsV
 
 
 newSessionH :: Action
