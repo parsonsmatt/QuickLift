@@ -30,8 +30,8 @@ deleteSessionV sId = templateL $ p "Deleted session " <> toHtml sId
 
 
 showSessionV :: Maybe Session -> Html
-showSessionV session = case session of
-                Just sesh -> "Requested session: <br>" <> toHtml (show sesh) 
+showSessionV session = templateL $ p $ case session of
+                Just sesh -> "Requested session: " <> toHtml (show sesh) 
                 Nothing -> "Session not found"
 
 
