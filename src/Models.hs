@@ -21,7 +21,7 @@ import Database.Persist.TH
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 
 Session
-    sessionText Text
+    text Text
     day UTCTime default=now()
     deriving Show
 
