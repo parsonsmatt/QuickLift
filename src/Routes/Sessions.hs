@@ -14,6 +14,7 @@ import qualified Database.Persist.Postgresql as DB
 
 import Config
 import Models
+import Views
 import Views.Sessions
 
 
@@ -29,11 +30,11 @@ sessionsRoutes = do
 
 
 indexSessionsH :: Action
-indexSessionsH = indexSessionsV
+indexSessionsH = blaze indexSessionsV
 
 
 newSessionH :: Action
-newSessionH = html "makin a new Session"
+newSessionH = blaze newSessionV
 
 
 createSessionH :: Action
@@ -41,21 +42,22 @@ createSessionH = do
     session <- param "session"
     time <- liftIO getCurrentTime
     sId <- runDb $ DB.insert $ Session session time
-    html $ "You posted a session: " <> session <> "!<br>With ID: " <> (T.pack . show) sId
+    let tsId = (T.pack . show) sId
+    blaze (createSessionV session tsId)
 
 
 deleteSessionH :: Action
-deleteSessionH = html "deletin it"
+deleteSessionH = do
+    session <- param "id"
+    _ <- runDb $ DB.delete (DB.toSqlKey $ read session :: DB.Key Session)
+    blaze (deleteSessionV (T.pack session))
 
 
 showSessionH :: Action
 showSessionH = do
     sessionId <- param "id"
     session <- runDb $ DB.get $ DB.toSqlKey $ read sessionId
-    html $ case session of
-                Just sesh -> "Requested session: <br>" <> (T.pack . show) (sesh :: Session) 
-                Nothing -> "Session not found"
-
+    blaze (showSessionV session)
 
 editSessionH :: Action
 editSessionH = do
@@ -66,14 +68,14 @@ editSessionH = do
 updateSessionH :: Action
 updateSessionH = html "updatesss"
 
-data Date = Date { year :: Int
-                 , month :: Int
-                 , day :: Int
-                 }
-            deriving (Show, Eq, Ord)
-
-parseDate :: Text -> Maybe Date
-parseDate t = let toNum = read . unpack
-              in  case splitOn "-" t of
-                       [y,m,d] -> Just Date { year = toNum y, month = toNum m, day = toNum d } 
-                       _ -> Nothing
+-- data Date = Date { year :: Int
+--                  , month :: Int
+--                  , day :: Int
+--                  }
+--             deriving (Show, Eq, Ord)
+-- 
+-- parseDate :: Text -> Maybe Date
+-- parseDate t = let toNum = read . unpack
+--               in  case splitOn "-" t of
+--                        [y,m,d] -> Just Date { year = toNum y, month = toNum m, day = toNum d } 
+--                        _ -> Nothing
