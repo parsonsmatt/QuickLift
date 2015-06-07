@@ -41,12 +41,11 @@ userSessions :: Int64 -> AppM [Entity Session]
 userSessions uId = runDb (selectList [SessionUserId ==. toSqlKey uId] [])
 
 createSession :: Session -> AppM Int64
-createSession session = liftM fromSqlKey $ runDb $ insert session
+createSession = liftM fromSqlKey . runDb . insert
 
 allPersons :: AppM [Person]
-allPersons =
-    liftM map (\(Entity _ y) -> userToPerson y) $ runDb $ selectList [] []
-    
+allPersons = liftM (map (\(Entity _ y) -> userToPerson y)) 
+                   (runDb $ selectList [] []) 
 
 singlePerson :: String -> AppM Person
 singlePerson str = do
@@ -57,6 +56,4 @@ singlePerson str = do
          (x:xs) -> return x
 
 createPerson :: Person -> AppM Int64
-createPerson p = do
-    newPerson <- runDb $ insert $ User (name p) (email p)
-    return $ fromSqlKey newPerson
+createPerson p = liftM fromSqlKey (runDb $ insert $ User (name p) (email p))
