@@ -44,10 +44,9 @@ createSession :: Session -> AppM Int64
 createSession session = liftM fromSqlKey $ runDb $ insert session
 
 allPersons :: AppM [Person]
-allPersons = do
-    users <- runDb $ selectList [] []
-    let people = map (\(Entity _ y) -> userToPerson y) users
-    return people
+allPersons =
+    liftM map (\(Entity _ y) -> userToPerson y) $ runDb $ selectList [] []
+    
 
 singlePerson :: String -> AppM Person
 singlePerson str = do
