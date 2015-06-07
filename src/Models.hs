@@ -15,11 +15,9 @@ module Models where
 
 import Data.Aeson
 import GHC.Generics
-import Control.Monad.Reader        (ReaderT, asks, liftIO)
-import Database.Persist.Postgresql (SqlBackend(..), runMigration, 
-                                    runSqlPool)
-import Database.Persist.TH         (share, mkPersist, sqlSettings,
-                                    mkMigrate, persistLowerCase)
+import Control.Monad.Reader
+import Database.Persist.Postgresql
+import Database.Persist.TH
 import Data.Text
 import Data.Time
 
