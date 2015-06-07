@@ -2,11 +2,11 @@
 
 module Config where
 
-import Network.Wai.Middleware.RequestLogger (logStdoutDev, logStdout)
-import Network.Wai                          (Middleware)
-import Control.Monad.Logger                 (runNoLoggingT, runStdoutLoggingT)
+import Network.Wai.Middleware.RequestLogger
+import Network.Wai
+import Control.Monad.Logger
 
-import Database.Persist.Postgresql (ConnectionPool, createPostgresqlPool, ConnectionString)
+import Database.Persist.Postgresql
 
 data Config = Config 
     { getPool :: ConnectionPool
