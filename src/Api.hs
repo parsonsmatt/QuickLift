@@ -3,38 +3,45 @@
 
 module Api where
 
-import Control.Monad.Reader         (ReaderT, runReaderT, lift)
-import Control.Monad.Trans.Either   (EitherT, left)
-import Network.Wai                  (Application)
-import Database.Persist.Postgresql  (insert, selectList, Entity(..)
-                                    ,fromSqlKey, (==.))
-import Data.Int                     (Int64)
+import Control.Monad.Reader
+import Control.Monad.Trans.Either
+import Network.Wai
+import Database.Persist.Postgresql
+import Control.Monad
+import Data.Int
 import Servant
+import Config
+import Models
 
-import Config    (Config(..))
-import Models -- (Person, userToPerson, EntityField(UserName))
-
-type PersonAPI = 
+type QuickLiftAPI = 
          "users" :> Get '[JSON] [Person]
     :<|> "users" :> Capture "name" String :> Get '[JSON] Person
     :<|> "users" :> ReqBody '[JSON] Person :> Post '[JSON] Int64
+    :<|> "sessions" :> ReqBody '[JSON] Session :> Post '[JSON] Int64
+    :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Entity Session]
 
 type AppM = ReaderT Config (EitherT ServantErr IO)
 
-userAPI :: Proxy PersonAPI
+userAPI :: Proxy QuickLiftAPI
 userAPI = Proxy
 
 app :: Config -> Application
 app cfg = serve userAPI (readerServer cfg)
 
-readerServer :: Config -> Server PersonAPI
+readerServer :: Config -> Server QuickLiftAPI
 readerServer cfg = enter (readerToEither cfg) server
 
 readerToEither :: Config -> AppM :~> EitherT ServantErr IO
 readerToEither cfg = Nat $ \x -> runReaderT x cfg
 
-server :: ServerT PersonAPI AppM
-server = allPersons :<|> singlePerson :<|> createPerson
+server :: ServerT QuickLiftAPI AppM
+server = allPersons :<|> singlePerson :<|> createPerson :<|> createSession :<|> userSessions
+
+userSessions :: Int64 -> AppM [Entity Session]
+userSessions uId = runDb (selectList [SessionUserId ==. toSqlKey uId] [])
+
+createSession :: Session -> AppM Int64
+createSession session = liftM fromSqlKey $ runDb $ insert session
 
 allPersons :: AppM [Person]
 allPersons = do

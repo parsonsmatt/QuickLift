@@ -1,4 +1,5 @@
 {-# LANGUAGE EmptyDataDecls             #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -12,13 +13,15 @@
 
 module Models where
 
-import Data.Aeson                  (ToJSON, FromJSON)
-import GHC.Generics                (Generic)
+import Data.Aeson
+import GHC.Generics
 import Control.Monad.Reader        (ReaderT, asks, liftIO)
 import Database.Persist.Postgresql (SqlBackend(..), runMigration, 
                                     runSqlPool)
 import Database.Persist.TH         (share, mkPersist, sqlSettings,
                                     mkMigrate, persistLowerCase)
+import Data.Text
+import Data.Time
 
 import Config
 
@@ -26,15 +29,20 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User
     name String
     email String
+    UniqueEmail email
+    deriving Show
+
+Session json
+    text Text
+    date UTCTime
+    userId UserId
     deriving Show
 |]
 
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
 
-runDb query = do
-    pool <- asks getPool
-    liftIO $ runSqlPool query pool
+runDb query = asks getPool >>= liftIO . runSqlPool query
 
 data Person = Person
     { name :: String
