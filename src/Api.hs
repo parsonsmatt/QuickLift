@@ -8,6 +8,7 @@ import Control.Monad.Reader
 import Control.Monad.Trans.Either
 import Network.Wai
 import Database.Persist.Postgresql
+import Database.Persist
 import Control.Monad
 import Data.Int
 import Servant
