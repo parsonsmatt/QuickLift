@@ -51,13 +51,19 @@ singlePerson uId = do
 createPerson :: Person -> AppM Int64
 createPerson p = liftM fromSqlKey (runDb $ insert $ User (name p) (email p))
 
+quickliftAPI :: Proxy QuickLiftAPI
+quickliftAPI = Proxy
 
+type AppAPI = QuickLiftAPI :<|> Raw
 
-userAPI :: Proxy QuickLiftAPI
-userAPI = Proxy
+appAPI :: Proxy AppAPI
+appAPI = Proxy
+
+files :: Application
+files = serveDirectory "front"
 
 app :: Config -> Application
-app cfg = serve userAPI (readerServer cfg)
+app cfg = serve appAPI ((readerServer cfg) :<|> files)
 
 readerServer :: Config -> Server QuickLiftAPI
 readerServer cfg = enter (readerToEither cfg) server
