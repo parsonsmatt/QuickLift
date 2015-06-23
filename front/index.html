@@ -1,1 +1,33 @@
-lol
+<html>
+<head>
+  <title>QuickLift</title>
+  <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+</head>
+<body>
+  <h1>QuickLift API</h1>
+
+  <script>
+function doAlert() {
+  $.get('/users', function(r) {
+    alert(r);
+  });
+}
+
+function makeUser() {
+  $.ajax({
+    type: 'POST', 
+    url: '/users', 
+    data: JSON.stringify({ name: "Matt", email: "parsonsmatt@gmail.com" }),
+    dataType: 'json',
+    success:  function(e) {
+        alert(e);
+    },
+    contentType: 'application/json'});
+}
+  </script>
+
+  <button onClick=doAlert()>list users</button>
+  <button onClick=makeUser()>make user</button>
+
+</body>
+</html>
