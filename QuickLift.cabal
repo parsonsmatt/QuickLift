@@ -26,6 +26,7 @@ executable QuickLift
   build-depends:       base >=4.8 && <4.10
                      , servant >= 0.4 && < 0.5
                      , servant-server >= 0.4 && < 0.5
+                     , servant-jquery >= 0.4 && < 0.5
                      , persistent >= 2.1 && < 2.2
                      , persistent-postgresql >= 2.1 && < 2.2
                      , persistent-template >= 2.1 && < 2.2
