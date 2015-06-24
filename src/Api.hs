@@ -60,10 +60,10 @@ appAPI :: Proxy AppAPI
 appAPI = Proxy
 
 files :: Application
-files = serveDirectory "front"
+files = serveDirectory "ql-ui/assets/"
 
 app :: Config -> Application
-app cfg = serve appAPI ((readerServer cfg) :<|> files)
+app cfg = serve appAPI (readerServer cfg :<|> files)
 
 readerServer :: Config -> Server QuickLiftAPI
 readerServer cfg = enter (readerToEither cfg) server
