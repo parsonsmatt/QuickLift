@@ -2,18 +2,18 @@
 
 module Config where
 
-import Network.Wai.Middleware.RequestLogger
-import Network.Wai
-import Control.Monad.Logger
+import           Control.Monad.Logger
+import           Network.Wai
+import           Network.Wai.Middleware.RequestLogger
 
-import Database.Persist.Postgresql
+import           Database.Persist.Postgresql
 
-data Config = Config 
+data Config = Config
     { getPool :: ConnectionPool
     , getEnv  :: Environment
     }
 
-data Environment = 
+data Environment =
     Development
   | Test
   | Production

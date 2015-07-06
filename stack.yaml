@@ -1,5 +1,4 @@
-flags:
-  QuickLift: {}
+flags: {}
 packages:
 - '.'
 extra-deps: []

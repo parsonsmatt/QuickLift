@@ -1,21 +1,21 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Api where
 
-import Control.Applicative
-import Control.Monad.Reader
-import Control.Monad.Trans.Either
-import Network.Wai
-import Database.Persist.Postgresql
-import Database.Persist
-import Control.Monad
-import Data.Int
-import Servant
-import Config
-import Models
+import           Config
+import           Control.Applicative
+import           Control.Monad
+import           Control.Monad.Reader
+import           Control.Monad.Trans.Either
+import           Data.Int
+import           Database.Persist
+import           Database.Persist.Postgresql
+import           Models
+import           Network.Wai
+import           Servant
 
-type QuickLiftAPI = 
+type QuickLiftAPI =
          "users" :> Get '[JSON] [Person]
     :<|> "users" :> Capture "id" Int64 :> Get '[JSON] Person
     :<|> "users" :> ReqBody '[JSON] Person :> Post '[JSON] Int64
@@ -25,10 +25,10 @@ type QuickLiftAPI =
 type AppM = ReaderT Config (EitherT ServantErr IO)
 
 server :: ServerT QuickLiftAPI AppM
-server = allPersons 
-    :<|> singlePerson 
-    :<|> createPerson 
-    :<|> createSession 
+server = allPersons
+    :<|> singlePerson
+    :<|> createPerson
+    :<|> createSession
     :<|> userSessions
 
 userSessions :: Int64 -> AppM [Entity Session]
@@ -38,8 +38,8 @@ createSession :: Session -> AppM Int64
 createSession = liftM fromSqlKey . runDb . insert
 
 allPersons :: AppM [Person]
-allPersons = liftM (map (\(Entity _ y) -> userToPerson y)) 
-                   (runDb $ selectList [] []) 
+allPersons = liftM (map (\(Entity _ y) -> userToPerson y))
+                   (runDb $ selectList [] [])
 
 singlePerson :: Int64 -> AppM Person
 singlePerson uId = do

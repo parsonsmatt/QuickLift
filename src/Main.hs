@@ -1,12 +1,14 @@
 module Main where
 
-import Network.Wai.Handler.Warp    (run)
-import System.Environment          (lookupEnv)
-import Database.Persist.Postgresql (runSqlPool)
+import           Database.Persist.Postgresql (runSqlPool)
+import           Network.Wai.Handler.Warp    (run)
+import           System.Environment          (lookupEnv)
 
-import Config (defaultConfig, Config(..), Environment(..), setLogger, makePool)
-import Api    (app)
-import Models (doMigrations)
+import           Api                         (app)
+import           Config                      (Config (..), Environment (..),
+                                              defaultConfig, makePool,
+                                              setLogger)
+import           Models                      (doMigrations)
 
 
 main :: IO ()
@@ -18,7 +20,6 @@ main = do
         logger = setLogger env
     runSqlPool doMigrations pool
     run port $ logger $ app cfg
-
 
 lookupSetting :: Read a => String -> a -> IO a
 lookupSetting env def = do
