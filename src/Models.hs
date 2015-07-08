@@ -1,4 +1,5 @@
 {-# LANGUAGE EmptyDataDecls             #-}
+{-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GADTs                      #-}
@@ -40,6 +41,9 @@ Session json
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
 
+runDb :: forall (m :: * -> *) b. 
+        (MonadIO m, MonadReader Config m) =>
+        SqlPersistT IO b -> m b
 runDb query = asks getPool >>= liftIO . runSqlPool query
 
 data Person = Person

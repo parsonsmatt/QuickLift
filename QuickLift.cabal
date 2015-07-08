@@ -23,7 +23,7 @@ executable QuickLift
   main-is:             Main.hs
   other-modules:       Api, Config, Models
   -- other-extensions:    
-  build-depends:       base >=4.8 && <4.10
+  build-depends:       base >=4.6 && <4.10
                      , servant >= 0.4 && < 0.5
                      , servant-server >= 0.4 && < 0.5
                      , servant-jquery >= 0.4 && < 0.5
