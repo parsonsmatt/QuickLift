@@ -70,4 +70,3 @@ readerServer cfg = enter (readerToEither cfg) server
 
 readerToEither :: Config -> AppM :~> EitherT ServantErr IO
 readerToEither cfg = Nat $ \x -> runReaderT x cfg
-
