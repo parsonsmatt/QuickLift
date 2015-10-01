@@ -7,6 +7,7 @@ import qualified Text.Megaparsec.Lexer as L
 import Control.Lens
 import Data.Text (Text)
 import qualified Data.Text as T
+import Data.List (genericReplicate)
 
 data Lift
   = Lift
@@ -39,16 +40,12 @@ liftSets = concat <$> many setLine
 
 setLine :: Parsec Text [Set]
 setLine = do
-  weight <- integer
-  reps <- option 1 $ try $ do
-    skipChar 'x'
-    integer
-  sets <- option 1 $ try $ do
-    skipChar 'x'
-    integer
-  skipComma
-  return $ replicate (fromInteger sets) $ Set weight reps
+  s <- Set <$> integer <*> xThenInt
+  repeats <- xThenInt <* skipComma
+  return $ genericReplicate repeats s
 
+xThenInt :: Parsec Text Integer
+xThenInt = option 1 $ try (skipChar 'x' >> integer)
 
 lexeme :: Parsec Text a -> Parsec Text a
 lexeme = L.lexeme space
