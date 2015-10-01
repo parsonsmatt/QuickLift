@@ -2,5 +2,6 @@ flags: {}
 packages:
 - '.'
 extra-deps:
-- 'megaparsec-4.0.0'
+- elm-bridge-0.1.0.0
+- megaparsec-4.0.0
 resolver: lts-3.1
