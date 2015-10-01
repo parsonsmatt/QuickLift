@@ -4,7 +4,6 @@
 module Api where
 
 import           Config
-import           Control.Applicative
 import           Control.Monad
 import           Control.Monad.Reader
 import           Control.Monad.Trans.Either
@@ -39,8 +38,7 @@ createSession :: Session -> AppM Int64
 createSession = liftM fromSqlKey . runDb . insert
 
 allPersons :: AppM [Person]
-allPersons = liftM (map (\(Entity _ y) -> userToPerson y))
-                   (runDb $ selectList [] [])
+allPersons = map (userToPerson . entityVal) <$> runDb (selectList [] [])
 
 singlePerson :: Int64 -> AppM Person
 singlePerson uId = do
@@ -67,7 +65,4 @@ app :: Config -> Application
 app cfg = serve appAPI (readerServer cfg :<|> files)
 
 readerServer :: Config -> Server QuickLiftAPI
-readerServer cfg = enter (readerToEither cfg) server
-
-readerToEither :: Config -> AppM :~> EitherT ServantErr IO
-readerToEither cfg = Nat $ \x -> runReaderT x cfg
+readerServer cfg = enter (runReaderTNat cfg) server
