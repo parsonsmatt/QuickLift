@@ -1,1 +1,2 @@
-:l Main
+:l test/Spec.hs
+main
