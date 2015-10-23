@@ -1,7 +1,5 @@
 flags: {}
 packages:
 - '.'
-extra-deps:
-- elm-bridge-0.1.0.0
-- megaparsec-4.0.0
-resolver: lts-3.1
+extra-deps: []
+resolver: nightly-2015-10-23
