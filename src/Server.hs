@@ -24,5 +24,3 @@ quickLift = do
 
 lookupSetting :: Read a => String -> a -> IO a
 lookupSetting env def = liftM (maybe def read) (lookupEnv env)
-
-
