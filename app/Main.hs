@@ -4,5 +4,3 @@ import Server
 
 main :: IO ()
 main = quickLift
-
-
