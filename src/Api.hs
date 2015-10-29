@@ -19,7 +19,7 @@ type QuickLiftAPI =
     :<|> "users" :> Capture "id" Int64 :> Get '[JSON] Person
     :<|> "users" :> ReqBody '[JSON] Person :> Post '[JSON] Int64
     :<|> "sessions" :> ReqBody '[JSON] Session :> Post '[JSON] Int64
-    :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Session]
+    :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Entity Session]
 
 type AppM = ReaderT Config (EitherT ServantErr IO)
 
@@ -30,9 +30,9 @@ server = allPersons
     :<|> createSession
     :<|> userSessions
 
-userSessions :: Int64 -> AppM [Session]
+userSessions :: Int64 -> AppM [Entity Session]
 userSessions uId =
-  map entityVal <$> runDb (selectList [SessionUserId ==. toSqlKey uId] [])
+  runDb (selectList [SessionUserId ==. toSqlKey uId] [])
 
 createSession :: Session -> AppM Int64
 createSession = liftM fromSqlKey . runDb . insert
