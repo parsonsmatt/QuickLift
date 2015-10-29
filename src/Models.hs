@@ -15,6 +15,7 @@
 module Models where
 
 import Data.Aeson
+import Control.Monad.Logger (runStderrLoggingT)
 import GHC.Generics
 import Control.Monad.Reader
 import Database.Persist.Postgresql
@@ -43,6 +44,12 @@ doMigrations = runMigration migrateAll
 
 runDb :: (MonadIO m, MonadReader Config m) => SqlPersistT IO b -> m b
 runDb query = asks getPool >>= liftIO . runSqlPool query
+
+db query =
+  runStderrLoggingT $ 
+    withPostgresqlPool (connStr Development) 1 $
+      liftIO . runSqlPersistMPool query
+
 
 data Person = Person
     { name :: String
