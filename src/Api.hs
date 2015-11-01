@@ -21,6 +21,7 @@ type QuickLiftAPI
   :<|> "users" :> ReqBody '[JSON] Registration :> Post '[JSON] Int64
   :<|> "sessions" :> ReqBody '[JSON] Session :> Post '[JSON] Int64
   :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Session]
+  :<|> "authentication" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe (Entity User))
 
 type AppM = ReaderT Config (EitherT ServantErr IO)
 
@@ -30,6 +31,7 @@ server = allPersons
   :<|> createPerson
   :<|> createSession
   :<|> userSessions
+  :<|> handleAuth
 
 userSessions :: Int64 -> AppM [Session]
 userSessions uId =
@@ -47,6 +49,10 @@ singlePerson uId = do
     case userToPerson <$> user of
          Nothing -> lift $ left err404
          Just x  -> return x
+
+handleAuth :: Auth -> AppM (Maybe (Entity User))
+handleAuth = 
+  runDb . getBy . UniqueEmail . Text.unpack . authEmail
 
 createPerson :: Registration -> AppM Int64
 createPerson p =

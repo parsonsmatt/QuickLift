@@ -29,7 +29,7 @@ import Data.Time
 import Config
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-User
+User json
     name String
     email String
     UniqueEmail email
@@ -47,10 +47,19 @@ data Registration
   { regName :: Text
   , regEmail :: Text
   , regPassword :: Text
-  , regPasswordConf :: Text
+  , regConfirmation :: Text
   } deriving (Eq, Show)
 
-deriveJSON defaultOptions { fieldLabelModifier = Prelude.drop 3, constructorTagModifier = map toLower } ''Registration
+deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 3, constructorTagModifier = map toLower } ''Registration
+
+data Auth
+  = Auth
+  { authEmail :: Text
+  , authPassword :: Text
+  , authConfirmation :: Text
+  } deriving (Eq, Show)
+
+deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 4, constructorTagModifier = map toLower } ''Auth
 
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
