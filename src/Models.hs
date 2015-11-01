@@ -20,7 +20,10 @@ import GHC.Generics
 import Control.Monad.Reader
 import Database.Persist.Postgresql
 import Database.Persist.TH
-import Data.Text
+import Data.Aeson.TH
+import qualified Data.Text as Text
+import Data.Text (Text())
+import Data.Char (toLower)
 import Data.Time
 
 import Config
@@ -38,6 +41,16 @@ Session json
     userId UserId
     deriving Show
 |]
+
+data Registration
+  = Registration
+  { regName :: Text
+  , regEmail :: Text
+  , regPassword :: Text
+  , regPasswordConf :: Text
+  } deriving (Eq, Show)
+
+deriveJSON defaultOptions { fieldLabelModifier = Prelude.drop 3, constructorTagModifier = map toLower } ''Registration
 
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
