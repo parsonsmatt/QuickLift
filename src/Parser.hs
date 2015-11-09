@@ -2,23 +2,23 @@
 
 module Parser where
 
-import Text.Megaparsec
+import           Control.Lens
+import           Data.List             (genericReplicate)
+import           Data.Text             (Text)
+import qualified Data.Text             as T
+import           Text.Megaparsec
 import qualified Text.Megaparsec.Lexer as L
-import Control.Lens
-import Data.Text (Text)
-import qualified Data.Text as T
-import Data.List (genericReplicate)
 
 data Lift
   = Lift
-  { _name :: Text
+  { _name    :: Text
   , _setList :: [Set]
   } deriving (Eq, Show)
 
 data Set
   = Set
   { _weight :: Integer
-  , _reps :: Integer
+  , _reps   :: Integer
   } deriving (Eq, Show)
 
 makeLenses ''Lift

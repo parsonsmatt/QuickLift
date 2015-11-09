@@ -8,22 +8,24 @@ import           Network.Wai.Middleware.RequestLogger
 
 import           Database.Persist.Postgresql
 
-data Config = Config
-    { getPool :: ConnectionPool
-    , getEnv  :: Environment
-    }
+data Config 
+  = Config
+  { getPool :: ConnectionPool
+  , getEnv  :: Environment
+  }
 
-data Environment =
-    Development
+data Environment
+  = Development
   | Test
   | Production
   deriving (Eq, Show, Read)
 
 defaultConfig :: Config
-defaultConfig = Config
-    { getPool = undefined
-    , getEnv  = Development
-    }
+defaultConfig
+  = Config
+  { getPool = undefined
+  , getEnv  = Development
+  }
 
 setLogger :: Environment -> Middleware
 setLogger Test = id
