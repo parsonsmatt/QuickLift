@@ -50,6 +50,8 @@ library
                      , lens
                      , pwstore-fast
                      , bytestring
+                     , users
+                     , users-persistent
   hs-source-dirs:      src
   default-language:    Haskell2010
 
