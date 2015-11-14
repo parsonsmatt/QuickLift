@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Api where
@@ -18,61 +17,35 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           Servant
 import qualified Data.ByteString.Char8 as BS
+import Web.Users.Persistent
+import Web.Users.Types
 
 type QuickLiftAPI 
   =    "users" :> Get '[JSON] [Person]
-  :<|> "users" :> Capture "id" Int64 :> Get '[JSON] Person
-  :<|> "users" :> ReqBody '[JSON] Registration :> Post '[JSON] Int64
-  :<|> "sessions" :> ReqBody '[JSON] Session :> Post '[JSON] Int64
-  :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Entity Session]
-  :<|> "authentication" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe (Entity User))
+  :<|> "sessions" :> ReqBody '[JSON] LiftSession :> Post '[JSON] Int64
+  :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Entity LiftSession]
 
 type AppM = ReaderT Config (EitherT ServantErr IO)
 
 server :: ServerT QuickLiftAPI AppM
 server = allPersons
-  :<|> singlePerson
-  :<|> createPerson
-  :<|> createSession
-  :<|> userSessions
-  :<|> handleAuth
+  :<|> createLiftSession
+  :<|> userLiftSessions
 
-userSessions :: Int64 -> AppM [Entity Session]
-userSessions uId =
-  runDb (selectList [SessionUserId ==. toSqlKey uId] [])
+userLiftSessions :: Int64 -> AppM [Entity LiftSession]
+userLiftSessions uId =
+  runDb (selectList [LiftSessionUserId ==. toSqlKey uId] [])
 
-createSession :: Session -> AppM Int64
-createSession = liftM fromSqlKey . runDb . insert
+createLiftSession :: LiftSession -> AppM Int64
+createLiftSession = liftM fromSqlKey . runDb . insert
 
 allPersons :: AppM [Person]
-allPersons = map (userToPerson . entityVal) <$> runDb (selectList [] [])
+allPersons = do
+  p <- asks getPool
+  --map (userToPerson . entityVal) <$> 
+  users <- liftIO (listUsers (Persistent (flip runSqlPool p)) Nothing)
+  return . map (userToPerson . snd) $ users
 
-singlePerson :: Int64 -> AppM Person
-singlePerson uId = do
-    user <- runDb $ get (toSqlKey uId)
-    case userToPerson <$> user of
-         Nothing -> lift $ left err404
-         Just x  -> return x
-
-handleAuth :: Auth -> AppM (Maybe (Entity User))
-handleAuth Auth{..} = do
-  muser <- runDb . getBy . UniqueEmail . Text.unpack $ authEmail
-  let authed = do
-          user <- muser
-          let attempt = Text.encodeUtf8 authPassword
-              actual  = Text.encodeUtf8 . userPasswordHash . entityVal $ user
-          guard $ verifyPassword attempt actual 
-          return user
-  case authed of
-       Nothing -> lift $ left err401
-       Just u -> return (Just u)
-
-
-createPerson :: Registration -> AppM Int64
-createPerson Registration{..} = do
-  pw <- Text.decodeUtf8 <$> liftIO (makePassword (Text.encodeUtf8 regPassword) 17)
-  i <- runDb $ insert $ User (Text.unpack regName) (Text.unpack regEmail) pw
-  return (fromSqlKey i)
 
 quickliftAPI :: Proxy QuickLiftAPI
 quickliftAPI = Proxy

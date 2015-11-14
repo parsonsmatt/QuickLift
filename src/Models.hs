@@ -25,21 +25,16 @@ import qualified Data.Text as Text
 import Data.Text (Text())
 import Data.Char (toLower)
 import Data.Time
+import Web.Users.Types
+import Web.Users.Persistent
 
 import Config
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-User json
-    name String
-    email String
-    passwordHash Text
-    UniqueEmail email
-    deriving Show
-
-Session json
+LiftSession json
     text Text
     date UTCTime
-    userId UserId
+    userId LoginId
     deriving Show
 |]
 
@@ -82,5 +77,7 @@ data Person = Person
 instance ToJSON Person
 instance FromJSON Person
 
-userToPerson :: User -> Person
-userToPerson User{..} = Person { name = userName, email = userEmail }
+type QLUser = User ()
+
+userToPerson :: QLUser -> Person
+userToPerson User {..} = Person { name = "", email = "" }
