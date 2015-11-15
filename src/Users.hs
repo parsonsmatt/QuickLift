@@ -22,10 +22,7 @@ backend = do
   pool <- asks getPool
   return $ WU.Persistent (`runSqlPool` pool)
 
-$(deriveReader 'backend)
-
-initUserBackend' :: AppM ()
-initUserBackend' = backend >>= \b -> liftIO (WU.initUserBackend b)
+deriveReader 'backend
 
 getUserIdByName :: Text -> AppM (Maybe WU.LoginId)
 getUserById :: WU.LoginId -> AppM (Maybe QLUser)
