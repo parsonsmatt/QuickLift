@@ -37,10 +37,7 @@ createLiftSession :: LiftSession -> AppM Int64
 createLiftSession = liftM fromSqlKey . runDb . insert
 
 allPersons :: AppM [Person]
-allPersons = do
-  p <- asks getPool
-  users <- listUsers Nothing
-  return . map (userToPerson . snd) $ users
+allPersons = map (userToPerson . snd) <$> listUsers Nothing
 
 
 quickliftAPI :: Proxy QuickLiftAPI
