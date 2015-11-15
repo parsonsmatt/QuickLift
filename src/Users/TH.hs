@@ -9,10 +9,26 @@ import Control.Monad.Reader
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
 
-import Users.TH.Internal
-
 import Web.Users.Persistent
 import Web.Users.Types
+
+functionLevels :: Type -> Int
+functionLevels = go 0
+  where
+    go :: Int -> Type -> Int
+    go n (AppT (AppT ArrowT _) rest) =
+      go (n+1) rest
+    go n (ForallT _ _ rest) =
+      go n rest
+    go n _ =
+      n
+
+getType :: Info -> Maybe Type
+getType (ClassOpI _ t _ _) = Just t
+getType (DataConI _ t _ _) = Just t
+getType (VarI _ t _ _)     = Just t
+getType (TyVarI _ t)       = Just t
+getType _                  = Nothing
 
 deriveReader :: Name -> DecsQ
 deriveReader rd =
@@ -47,4 +63,3 @@ decForFunc reader fn = do
       final      = binder liftedExpr
       varPat     = map VarP varNames
   return $ FunD fnName [Clause varPat (NormalB final) []]
-           

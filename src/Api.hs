@@ -17,8 +17,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           Servant
 import qualified Data.ByteString.Char8 as BS
-import Web.Users.Persistent
-import Web.Users.Types
+import Users
 
 type QuickLiftAPI 
   =    "users" :> Get '[JSON] [Person]
@@ -40,8 +39,7 @@ createLiftSession = liftM fromSqlKey . runDb . insert
 allPersons :: AppM [Person]
 allPersons = do
   p <- asks getPool
-  --map (userToPerson . entityVal) <$> 
-  users <- liftIO (listUsers (Persistent (flip runSqlPool p)) Nothing)
+  users <- listUsers Nothing
   return . map (userToPerson . snd) $ users
 
 
