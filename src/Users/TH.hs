@@ -38,17 +38,13 @@ decForFunc reader fn = do
         (getType info)
   varNames <- replicateM (arity - 1) (newName "arg")
   b <- newName "b"
-  let fnName = mkName . nameBase $ fn
-      bound  = AppE (VarE '(>>=)) (VarE reader)
-      binder = AppE bound . LamE [VarP b]
-      varExprs = map VarE (b : varNames)
+  let fnName     = mkName . nameBase $ fn
+      bound      = AppE (VarE '(>>=)) (VarE reader)
+      binder     = AppE bound . LamE [VarP b]
+      varExprs   = map VarE (b : varNames)
       fullExpr   = foldl AppE (VarE fn) varExprs
-      liftedExpr = AppE (VarE (mkName "liftIO")) fullExpr
-  if arity > 1 
-     then do
-      let lambdaPat = LamE (map VarP varNames) (binder liftedExpr)
-      return $
-        FunD fnName [Clause [] (NormalB lambdaPat) []]
-     else do
-       let noLambda = binder liftedExpr
-       return $ FunD fnName [Clause [] (NormalB noLambda) []]
+      liftedExpr = AppE (VarE 'liftIO) fullExpr
+      final      = binder liftedExpr
+      varPat     = map VarP varNames
+  return $ FunD fnName [Clause varPat (NormalB final) []]
+           
