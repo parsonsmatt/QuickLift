@@ -77,7 +77,8 @@ data Person = Person
 instance ToJSON Person
 instance FromJSON Person
 
-type QLUser = User ()
+type QLUser = User UserDetails
+type UserDetails = ()
 
 userToPerson :: QLUser -> Person
 userToPerson User {..} = Person { name = "", email = "" }

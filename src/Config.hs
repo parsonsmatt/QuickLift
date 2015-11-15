@@ -3,10 +3,15 @@
 module Config where
 
 import           Control.Monad.Logger
+import           Control.Monad.Reader
+import           Servant
+import           Control.Monad.Trans.Either
 import           Network.Wai
 import           Network.Wai.Middleware.RequestLogger
 
 import           Database.Persist.Postgresql
+
+type AppM = ReaderT Config (EitherT ServantErr IO)
 
 data Config 
   = Config

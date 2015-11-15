@@ -29,7 +29,7 @@ executable quicklift-exe
 
 
 library
-  exposed-modules:     Api, Config, Models, Parser, Server, Authentication
+  exposed-modules:     Api, Config, Models, Parser, Server, Authentication, Users
   -- other-extensions:    
   build-depends:       base >=4.6 && <4.10
                      , servant >= 0.4 && < 0.5
@@ -46,6 +46,7 @@ library
                      , monad-logger
                      , time
                      , text
+                     , template-haskell
                      , megaparsec
                      , lens
                      , pwstore-fast

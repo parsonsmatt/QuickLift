@@ -25,8 +25,6 @@ type QuickLiftAPI
   :<|> "sessions" :> ReqBody '[JSON] LiftSession :> Post '[JSON] Int64
   :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Entity LiftSession]
 
-type AppM = ReaderT Config (EitherT ServantErr IO)
-
 server :: ServerT QuickLiftAPI AppM
 server = allPersons
   :<|> createLiftSession
