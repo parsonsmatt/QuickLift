@@ -20,24 +20,42 @@ import GHC.Generics
 import Control.Monad.Reader
 import Database.Persist.Postgresql
 import Database.Persist.TH
-import Data.Text
+import Data.Aeson.TH
+import qualified Data.Text as Text
+import Data.Text (Text())
+import Data.Char (toLower)
 import Data.Time
+import Web.Users.Types
+import Web.Users.Persistent
 
 import Config
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-User
-    name String
-    email String
-    UniqueEmail email
-    deriving Show
-
-Session json
+LiftSession json
     text Text
     date UTCTime
-    userId UserId
+    userId LoginId
     deriving Show
 |]
+
+data Registration
+  = Registration
+  { regName :: Text
+  , regEmail :: Text
+  , regPassword :: Text
+  , regConfirmation :: Text
+  } deriving (Eq, Show)
+
+deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 3, constructorTagModifier = map toLower } ''Registration
+
+data Auth
+  = Auth
+  { authEmail :: Text
+  , authPassword :: Text
+  , authConfirmation :: Text
+  } deriving (Eq, Show)
+
+deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 4, constructorTagModifier = map toLower } ''Auth
 
 doMigrations :: ReaderT SqlBackend IO ()
 doMigrations = runMigration migrateAll
@@ -59,5 +77,8 @@ data Person = Person
 instance ToJSON Person
 instance FromJSON Person
 
-userToPerson :: User -> Person
-userToPerson User{..} = Person { name = userName, email = userEmail }
+type QLUser = User UserDetails
+type UserDetails = ()
+
+userToPerson :: QLUser -> Person
+userToPerson User {..} = Person { name = "", email = "" }

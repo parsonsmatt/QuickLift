@@ -3,6 +3,7 @@
 
 module Api where
 
+import Crypto.PasswordStore
 import           Config
 import           Control.Monad
 import           Control.Monad.Reader
@@ -12,43 +13,32 @@ import           Database.Persist
 import           Database.Persist.Postgresql
 import           Models
 import           Network.Wai
+import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import           Servant
+import qualified Data.ByteString.Char8 as BS
+import Users
 
-type QuickLiftAPI =
-         "users" :> Get '[JSON] [Person]
-    :<|> "users" :> Capture "id" Int64 :> Get '[JSON] Person
-    :<|> "users" :> ReqBody '[JSON] Person :> Post '[JSON] Int64
-    :<|> "sessions" :> ReqBody '[JSON] Session :> Post '[JSON] Int64
-    :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Session]
-
-type AppM = ReaderT Config (EitherT ServantErr IO)
+type QuickLiftAPI 
+    =    "users" :> Get '[JSON] [Person]
+    :<|> "sessions" :> ReqBody '[JSON] LiftSession :> Post '[JSON] Int64
+    :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Entity LiftSession]
 
 server :: ServerT QuickLiftAPI AppM
 server = allPersons
-    :<|> singlePerson
-    :<|> createPerson
-    :<|> createSession
-    :<|> userSessions
+    :<|> createLiftSession
+    :<|> userLiftSessions
 
-userSessions :: Int64 -> AppM [Session]
-userSessions uId =
-    map entityVal <$> runDb (selectList [SessionUserId ==. toSqlKey uId] [])
+userLiftSessions :: Int64 -> AppM [Entity LiftSession]
+userLiftSessions uId =
+  runDb (selectList [LiftSessionUserId ==. toSqlKey uId] [])
 
-createSession :: Session -> AppM Int64
-createSession = liftM fromSqlKey . runDb . insert
+createLiftSession :: LiftSession -> AppM Int64
+createLiftSession = liftM fromSqlKey . runDb . insert
 
 allPersons :: AppM [Person]
-allPersons = map (userToPerson . entityVal) <$> runDb (selectList [] [])
+allPersons = map (userToPerson . snd) <$> listUsers Nothing
 
-singlePerson :: Int64 -> AppM Person
-singlePerson uId = do
-    user <- runDb $ get (toSqlKey uId)
-    case userToPerson <$> user of
-         Nothing -> lift $ left err404
-         Just x  -> return x
-
-createPerson :: Person -> AppM Int64
-createPerson p = liftM fromSqlKey (runDb $ insert $ User (name p) (email p))
 
 quickliftAPI :: Proxy QuickLiftAPI
 quickliftAPI = Proxy
