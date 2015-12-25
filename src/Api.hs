@@ -3,42 +3,46 @@
 
 module Api where
 
-import Crypto.PasswordStore
 import           Config
 import           Control.Monad
 import           Control.Monad.Reader
 import           Control.Monad.Trans.Either
+import           Crypto.PasswordStore
+import qualified Data.ByteString.Char8       as BS
 import           Data.Int
+import qualified Data.Text                   as Text
+import qualified Data.Text.Encoding          as Text
 import           Database.Persist
 import           Database.Persist.Postgresql
 import           Models
 import           Network.Wai
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
 import           Servant
-import qualified Data.ByteString.Char8 as BS
-import Users
+import           Users
 
-type QuickLiftAPI 
-    =    "users" :> Get '[JSON] [Person]
-    :<|> "sessions" :> ReqBody '[JSON] LiftSession :> Post '[JSON] Int64
-    :<|> "users" :> Capture "id" Int64 :> "sessions" :> Get '[JSON] [Entity LiftSession]
+type QuickLiftAPI
+    = "users" :> UserAPI
+
+type UserAPI = Get '[JSON] [Person]
+    :<|> ReqBody '[JSON] Registration :> Post '[JSON] Int64
+
+userServer :: ServerT UserAPI AppM
+userServer = getUsers :<|> registerUser
+
+getUsers :: AppM [Person]
+getUsers = do
+    users <- listUsers Nothing
+    return (map (userToPerson . snd) users)
+
+registerUser :: Registration -> AppM Int64
+registerUser reg = do
+    let qlUser = convertRegistration reg 
+    user <- createUser qlUser
+    case user of
+         Left _ -> lift $ left err403
+         Right id -> return 0
 
 server :: ServerT QuickLiftAPI AppM
-server = allPersons
-    :<|> createLiftSession
-    :<|> userLiftSessions
-
-userLiftSessions :: Int64 -> AppM [Entity LiftSession]
-userLiftSessions uId =
-  runDb (selectList [LiftSessionUserId ==. toSqlKey uId] [])
-
-createLiftSession :: LiftSession -> AppM Int64
-createLiftSession = liftM fromSqlKey . runDb . insert
-
-allPersons :: AppM [Person]
-allPersons = map (userToPerson . snd) <$> listUsers Nothing
-
+server = userServer
 
 quickliftAPI :: Proxy QuickLiftAPI
 quickliftAPI = Proxy

@@ -39,21 +39,21 @@ LiftSession json
 |]
 
 data Registration
-  = Registration
-  { regName :: Text
-  , regEmail :: Text
-  , regPassword :: Text
-  , regConfirmation :: Text
-  } deriving (Eq, Show)
+    = Registration
+    { regName :: Text
+    , regEmail :: Text
+    , regPassword :: Text
+    , regConfirmation :: Text
+    } deriving (Eq, Show)
 
 deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 3, constructorTagModifier = map toLower } ''Registration
 
 data Auth
-  = Auth
-  { authEmail :: Text
-  , authPassword :: Text
-  , authConfirmation :: Text
-  } deriving (Eq, Show)
+    = Auth
+    { authEmail :: Text
+    , authPassword :: Text
+    , authConfirmation :: Text
+    } deriving (Eq, Show)
 
 deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 4, constructorTagModifier = map toLower } ''Auth
 
@@ -70,8 +70,8 @@ db query =
 
 
 data Person = Person
-    { name :: String
-    , email :: String
+    { name :: Text
+    , email :: Text
     } deriving (Eq, Show, Generic)
 
 instance ToJSON Person
@@ -82,3 +82,6 @@ type UserDetails = ()
 
 userToPerson :: QLUser -> Person
 userToPerson User {..} = Person { name = "", email = "" }
+
+convertRegistration :: Registration -> QLUser
+convertRegistration = error "Write convertRegistration!"
