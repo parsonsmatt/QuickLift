@@ -32,7 +32,7 @@ server = allPersons
 
 userSessions :: Int64 -> AppM [Session]
 userSessions uId =
-  map entityVal <$> runDb (selectList [SessionUserId ==. toSqlKey uId] [])
+    map entityVal <$> runDb (selectList [SessionUserId ==. toSqlKey uId] [])
 
 createSession :: Session -> AppM Int64
 createSession = liftM fromSqlKey . runDb . insert

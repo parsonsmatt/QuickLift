@@ -10,16 +10,16 @@ import           Text.Megaparsec
 import qualified Text.Megaparsec.Lexer as L
 
 data Lift
-  = Lift
-  { _name    :: Text
-  , _setList :: [Set]
-  } deriving (Eq, Show)
+    = Lift
+    { _name    :: Text
+    , _setList :: [Set]
+    } deriving (Eq, Show)
 
 data Set
-  = Set
-  { _weight :: Integer
-  , _reps   :: Integer
-  } deriving (Eq, Show)
+    = Set
+    { _weight :: Integer
+    , _reps   :: Integer
+    } deriving (Eq, Show)
 
 makeLenses ''Lift
 makeLenses ''Set
@@ -40,9 +40,9 @@ liftSets = concat <$> many setLine
 
 setLine :: Parsec Text [Set]
 setLine = do
-  s <- Set <$> integer <*> xThenInt
-  repeats <- xThenInt <* skipComma
-  return $ genericReplicate repeats s
+    s <- Set <$> integer <*> xThenInt
+    repeats <- xThenInt <* skipComma
+    return $ genericReplicate repeats s
 
 xThenInt :: Parsec Text Integer
 xThenInt = option 1 $ try (skipChar 'x' >> integer)
