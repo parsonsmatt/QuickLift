@@ -84,4 +84,12 @@ userToPerson :: QLUser -> Person
 userToPerson User {..} = Person { name = "", email = "" }
 
 convertRegistration :: Registration -> QLUser
-convertRegistration = error "Write convertRegistration!"
+convertRegistration Registration{..} =
+    User { u_name = regName
+         , u_email = regEmail
+         , u_password = password
+         , u_more = ()
+         , u_active = True
+         } 
+  where
+    password = makePassword . PasswordPlain $ regPassword

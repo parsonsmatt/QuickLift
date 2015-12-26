@@ -1,14 +1,19 @@
+{-# LANGUAGE DeriveGeneric   #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Users where
 
-import           Control.Monad
+import           Control.Monad               ()
 import           Control.Monad.Reader
+import           Data.Aeson
+import           Data.Aeson.TH
 import           Data.Int
 import           Data.Text                   (Text ())
 import           Data.Time
 import           Database.Persist
 import           Database.Persist.Postgresql
+import           GHC.Generics
 import           Language.Haskell.TH
 import qualified Web.Users.Persistent        as WU
 import qualified Web.Users.Types             as WU
@@ -22,7 +27,17 @@ backend = do
   pool <- asks getPool
   return $ WU.Persistent (`runSqlPool` pool)
 
+
+type SessionId = WU.SessionId
+
+data RegistrationError
+    = EmailAlreadyTaken
+    deriving (Show, Generic)
+
+deriveJSON defaultOptions ''RegistrationError
 deriveReader 'backend
+
+
 
 getUserIdByName :: Text -> AppM (Maybe WU.LoginId)
 getUserById :: WU.LoginId -> AppM (Maybe QLUser)

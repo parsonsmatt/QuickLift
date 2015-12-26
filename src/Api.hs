@@ -3,6 +3,7 @@
 
 module Api where
 
+import Debug.Trace
 import           Config
 import           Control.Monad
 import           Control.Monad.Reader
@@ -17,29 +18,35 @@ import           Database.Persist.Postgresql
 import           Models
 import           Network.Wai
 import           Servant
+import qualified Web.Users.Types as WU
+import qualified Web.Users.Persistent as WU
 import           Users
 
 type QuickLiftAPI
     = "users" :> UserAPI
 
 type UserAPI = Get '[JSON] [Person]
-    :<|> ReqBody '[JSON] Registration :> Post '[JSON] Int64
+    :<|> ReqBody '[JSON] Registration :> Post '[JSON] (Either Text.Text Int64)
+    :<|> "login" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe SessionId)
 
 userServer :: ServerT UserAPI AppM
-userServer = getUsers :<|> registerUser
+userServer = getUsers :<|> registerUser :<|> authenticateUser
 
 getUsers :: AppM [Person]
 getUsers = do
     users <- listUsers Nothing
     return (map (userToPerson . snd) users)
 
-registerUser :: Registration -> AppM Int64
+registerUser :: Registration -> AppM (Either Text.Text Int64)
 registerUser reg = do
     let qlUser = convertRegistration reg 
     user <- createUser qlUser
-    case user of
-         Left _ -> lift $ left err403
-         Right id -> return 0
+    return $ either (Left . Text.pack . show) (Right . fromSqlKey) user
+
+authenticateUser :: Auth -> AppM (Maybe SessionId)
+authenticateUser auth =
+    return Nothing
+
 
 server :: ServerT QuickLiftAPI AppM
 server = userServer
