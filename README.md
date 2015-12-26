@@ -2,6 +2,14 @@
 
 QuickLift is a web app for logging weightlifting sessions.
 
+I've used a few of the currently available weightlifting apps, and they all suffer from some key problems:
+
+- The UI is slow, unintuitive, or frustrating to use
+- There is no planning capacity built into the service
+- There is no analysis built into the service
+
+I want to build a weightlifting logging application that works great on mobile, is lightning fast to use, and (eventually) provides awesome analysis.
+
 ## Installation
 
 - Download and install [stack](https://github.com/commercialhaskell/stack)
@@ -23,4 +31,6 @@ There are three main ways to use the front-end:
 
 ## Features on the way
 
-* Implement authentication
+* Authentication
+* Weightlifting Logging
+* Deployment!
