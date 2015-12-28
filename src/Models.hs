@@ -64,7 +64,7 @@ runDb :: (MonadIO m, MonadReader Config m) => SqlPersistT IO b -> m b
 runDb query = asks getPool >>= liftIO . runSqlPool query
 
 db query =
-  runStderrLoggingT $ 
+  runStderrLoggingT $
     withPostgresqlPool (connStr Development) 1 $
       liftIO . runSqlPersistMPool query
 
@@ -78,18 +78,30 @@ instance ToJSON Person
 instance FromJSON Person
 
 type QLUser = User UserDetails
-type UserDetails = ()
+
+data UserDetails
+    = UserDetails
+    { _userName :: Text
+    } deriving (Eq, Show, Generic)
+
+instance ToJSON UserDetails
+instance FromJSON UserDetails
+
+emptyUserDetails = UserDetails ""
 
 userToPerson :: QLUser -> Person
-userToPerson User {..} = Person { name = "", email = "" }
+userToPerson User {..} =
+    Person { name = _userName u_more
+           , email = u_email
+           }
 
 convertRegistration :: Registration -> QLUser
 convertRegistration Registration{..} =
-    User { u_name = regName
+    User { u_name = regEmail
          , u_email = regEmail
          , u_password = password
-         , u_more = ()
+         , u_more = emptyUserDetails { _userName = regName }
          , u_active = True
-         } 
+         }
   where
     password = makePassword . PasswordPlain $ regPassword
