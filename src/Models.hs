@@ -31,10 +31,14 @@ import Web.Users.Persistent
 import Config
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-LiftSession json
+Liftsession json
     text Text
     date UTCTime
-    userId LoginId
+    user LoginId
+    deriving Show
+
+Profile json
+    user LoginId
     deriving Show
 |]
 
@@ -64,44 +68,44 @@ runDb :: (MonadIO m, MonadReader Config m) => SqlPersistT IO b -> m b
 runDb query = asks getPool >>= liftIO . runSqlPool query
 
 db query =
-  runStderrLoggingT $
-    withPostgresqlPool (connStr Development) 1 $
-      liftIO . runSqlPersistMPool query
+    runStderrLoggingT $
+        withPostgresqlPool (connStr Development) 1 $
+            liftIO . runSqlPersistMPool query
 
 
 data Person = Person
     { name :: Text
     , email :: Text
+    , personId :: LoginId
     } deriving (Eq, Show, Generic)
 
 instance ToJSON Person
 instance FromJSON Person
 
 type QLUser = User UserDetails
+type UserDetails = ()
 
-data UserDetails
-    = UserDetails
-    { _userName :: Text
-    } deriving (Eq, Show, Generic)
-
-instance ToJSON UserDetails
-instance FromJSON UserDetails
-
-emptyUserDetails = UserDetails ""
-
-userToPerson :: QLUser -> Person
-userToPerson User {..} =
-    Person { name = _userName u_more
+userToPerson :: LoginId -> QLUser -> Person
+userToPerson lid User {..} =
+    Person { name = u_name
            , email = u_email
+           , personId = lid
            }
 
 convertRegistration :: Registration -> QLUser
 convertRegistration Registration{..} =
-    User { u_name = regEmail
+    User { u_name = regName
          , u_email = regEmail
-         , u_password = password
-         , u_more = emptyUserDetails { _userName = regName }
+         , u_password = makePassword . PasswordPlain $ regPassword
+         , u_more = ()
          , u_active = True
          }
-  where
-    password = makePassword . PasswordPlain $ regPassword
+
+
+data AuthResponse
+    = AuthResponse
+    { sessionId :: SessionId
+    , person :: Person
+    } deriving (Eq, Show, Generic)
+
+instance ToJSON AuthResponse

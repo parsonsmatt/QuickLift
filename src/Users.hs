@@ -35,9 +35,8 @@ data RegistrationError
     deriving (Show, Generic)
 
 deriveJSON defaultOptions ''RegistrationError
+
 deriveReader 'backend
-
-
 
 getUserIdByName :: Text -> AppM (Maybe WU.LoginId)
 getUserById :: WU.LoginId -> AppM (Maybe QLUser)

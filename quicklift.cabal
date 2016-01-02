@@ -16,43 +16,53 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 source-repository head
-        type:     git
-        location: https://www.github.com/parsonsmatt/QuickLift
+  type:     git
+  location: https://www.github.com/parsonsmatt/QuickLift
 
 executable quicklift-exe
-  hs-source-dirs:      app
-  main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , quicklift
-  default-language:    Haskell2010
+    hs-source-dirs:      app
+    main-is:             Main.hs
+    ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+    build-depends:       base, quicklift
+    default-language:    Haskell2010
 
 
 library
-  exposed-modules:     Api, Config, Models, Parser, Server, Authentication, Users
+    exposed-modules:
+          Api
+        , Config
+        , Models
+        , Parser
+        , Server
+        , Authentication
+        , Users
+        , Users.TH
+
   -- other-extensions:
-  build-depends:       base >=4.6 && <4.10
-                     , servant >= 0.4 && < 0.5
-                     , servant-server >= 0.4 && < 0.5
-                     , persistent
-                     , persistent-postgresql
-                     , persistent-template
-                     , wai
-                     , wai-extra
-                     , warp
-                     , aeson
-                     , mtl
-                     , either
-                     , monad-logger
-                     , time
-                     , text
-                     , template-haskell
-                     , megaparsec
-                     , lens
-                     , pwstore-fast
-                     , bytestring
-                     , users
-                     , users-persistent
+    build-depends:
+          base >=4.6 && <4.10
+        , aeson
+        , bytestring
+        , either
+        , lens
+        , megaparsec
+        , monad-logger
+        , mtl
+        , persistent
+        , persistent-postgresql
+        , persistent-template
+        , pwstore-fast
+        , servant >= 0.4 && < 0.5
+        , servant-server >= 0.4 && < 0.5
+        , template-haskell
+        , text
+        , time
+        , transformers
+        , users
+        , users-persistent
+        , wai
+        , wai-extra
+        , warp
   hs-source-dirs:      src
   default-language:    Haskell2010
 
