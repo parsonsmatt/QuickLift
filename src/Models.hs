@@ -34,7 +34,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Liftsession json
     text Text
     date UTCTime
-    userId LoginId
+    user LoginId
     deriving Show
 
 Profile json
@@ -76,6 +76,7 @@ db query =
 data Person = Person
     { name :: Text
     , email :: Text
+    , personId :: LoginId
     } deriving (Eq, Show, Generic)
 
 instance ToJSON Person
@@ -84,10 +85,11 @@ instance FromJSON Person
 type QLUser = User UserDetails
 type UserDetails = ()
 
-userToPerson :: QLUser -> Person
-userToPerson User {..} =
+userToPerson :: LoginId -> QLUser -> Person
+userToPerson lid User {..} =
     Person { name = u_name
            , email = u_email
+           , personId = lid
            }
 
 convertRegistration :: Registration -> QLUser

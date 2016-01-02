@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Api where
@@ -11,6 +12,7 @@ import           Control.Monad.Trans.Either
 import           Crypto.PasswordStore
 import qualified Data.ByteString.Char8       as BS
 import           Data.Int
+import Data.Maybe
 import qualified Data.Text                   as Text
 import Data.Text (Text)
 import qualified Data.Text.Encoding          as Text
@@ -29,30 +31,49 @@ type QuickLiftAPI
 type UserAPI = Get '[JSON] [Person]
     :<|> ReqBody '[JSON] Registration :> Post '[JSON] (Either Text.Text Int64)
     :<|> "login" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe AuthResponse)
-    :<|> Capture "name" Text :> Get '[JSON] (Maybe Person)
-    :<|> Capture "name" Text :> "sessions" :> SessionAPI
+    :<|> Capture "name" Text :> (Get '[JSON] Person
+                            :<|> "sessions" :> SessionAPI)
 
 type SessionAPI = Get '[JSON] [Entity Liftsession]
+    :<|> ReqBody '[JSON] CreateSession :> Post '[JSON] (Either Text Int64)
 
 userServer :: ServerT UserAPI AppM
-userServer = getUsers :<|> registerUser :<|> authenticateUser :<|> (getUser :<|> sessionServer)
+userServer = getUsers :<|> registerUser :<|> authenticateUser :<|> (\t -> getUser t
+    :<|> sessionServer t)
 
 sessionServer :: Text -> ServerT SessionAPI AppM
-sessionServer = getSessions
+sessionServer username = getSessions' :<|> createSession'
+    where
+        getSessions' :: AppM [Entity Liftsession]
+        getSessions' = getUser username >>= getSessions
 
-getSessions :: Text -> AppM [Entity Liftsession]
-getSessions i = runDb $ selectList [] []
+        createSession' :: Liftsession -> AppM (Either Text Int64)
+        createSession' s = getUser username >>= createSession s
+
+getSessions :: Person -> AppM [Entity Liftsession]
+getSessions Person {..} =
+    runDb $ selectList [ LiftsessionUser ==. personId ] []
+
+createSession :: Liftsession -> Person -> AppM (Either Text Int64)
+createSession ls person = do
+    let ls' = ls { liftsessionUser = personId person }
+    key <- runDb $ insert ls'
+    return . return . fromSqlKey $ key
 
 getUsers :: AppM [Person]
 getUsers = do
     users <- listUsers Nothing
-    return (map (userToPerson . snd) users)
+    return (map (uncurry userToPerson) users)
 
-getUser :: Text -> AppM (Maybe Person)
-getUser k = runMaybeT $ do
-    userid <- MaybeT $ getUserIdByName k
-    user <- MaybeT $ getUserById userid
-    return $ userToPerson user
+getUser :: Text -> AppM Person
+getUser k = do
+    person <- runMaybeT $ do
+        userid <- MaybeT $ getUserIdByName k
+        user <- MaybeT $ getUserById userid
+        return $ userToPerson userid user
+    case person of
+         Nothing -> lift $ left err404
+         Just person -> return person
 
 registerUser :: Registration -> AppM (Either Text.Text Int64)
 registerUser reg = do
@@ -63,7 +84,7 @@ registerUser reg = do
 authenticateUser :: Auth -> AppM (Maybe AuthResponse)
 authenticateUser auth = runMaybeT $ do
     sessionId <- MaybeT $ authUser (authEmail auth) (WU.PasswordPlain $ authPassword auth) 1200000
-    person <- MaybeT $ getUser (authEmail auth)
+    person <- lift $ getUser (authEmail auth)
     return $ AuthResponse sessionId person
 
 
