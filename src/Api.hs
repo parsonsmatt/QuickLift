@@ -35,7 +35,7 @@ type UserAPI = Get '[JSON] [Person]
                             :<|> "sessions" :> SessionAPI)
 
 type SessionAPI = Get '[JSON] [Entity Liftsession]
-    :<|> ReqBody '[JSON] CreateSession :> Post '[JSON] (Either Text Int64)
+    :<|> Header "auth" Text :> ReqBody '[JSON] Liftsession :> Post '[JSON] (Either Text Int64)
 
 userServer :: ServerT UserAPI AppM
 userServer = getUsers :<|> registerUser :<|> authenticateUser :<|> (\t -> getUser t
@@ -47,8 +47,15 @@ sessionServer username = getSessions' :<|> createSession'
         getSessions' :: AppM [Entity Liftsession]
         getSessions' = getUser username >>= getSessions
 
-        createSession' :: Liftsession -> AppM (Either Text Int64)
-        createSession' s = getUser username >>= createSession s
+        createSession' :: Maybe Text -> Liftsession -> AppM (Either Text Int64)
+        createSession' Nothing _ = lift $ left err401
+        createSession' (Just sid) s = do
+            loginId <- verifySession (WU.SessionId sid) 10
+            user <- getUser username
+            if loginId == Just (personId user) then
+                createSession s user
+            else
+                lift $ left err401
 
 getSessions :: Person -> AppM [Entity Liftsession]
 getSessions Person {..} =

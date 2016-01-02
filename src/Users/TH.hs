@@ -31,13 +31,14 @@ getType _                  = Nothing
 
 deriveReader :: Name -> DecsQ
 deriveReader rd =
-    mapM (decForFunc rd) 
+    mapM (decForFunc rd)
         [ 'destroyUserBackend
         , 'housekeepBackend
         , 'getUserIdByName
         , 'getUserById
         , 'listUsers
         , 'countUsers
+        , 'verifySession
         , 'createUser
         , 'updateUser
         , 'updateUserDetails
@@ -49,7 +50,7 @@ decForFunc :: Name -> Name -> Q Dec
 decForFunc reader fn = do
     info <- reify fn
     arity <- maybe (reportError "Unable to get arity of name" >> return 0)
-                  (return . functionLevels) 
+                  (return . functionLevels)
                   (getType info)
     varNames <- replicateM (arity - 1) (newName "arg")
     b <- newName "b"
