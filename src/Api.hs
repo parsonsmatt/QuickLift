@@ -3,15 +3,16 @@
 
 module Api where
 
-import Debug.Trace
 import           Config
 import           Control.Monad
 import           Control.Monad.Reader
+import Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.Either
 import           Crypto.PasswordStore
 import qualified Data.ByteString.Char8       as BS
 import           Data.Int
 import qualified Data.Text                   as Text
+import Data.Text (Text)
 import qualified Data.Text.Encoding          as Text
 import           Database.Persist
 import           Database.Persist.Postgresql
@@ -27,18 +28,19 @@ type QuickLiftAPI
 
 type UserAPI = Get '[JSON] [Person]
     :<|> ReqBody '[JSON] Registration :> Post '[JSON] (Either Text.Text Int64)
-    :<|> "login" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe SessionId)
-    :<|> Capture "id" Int64 :> "sessions" :> SessionAPI
+    :<|> "login" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe AuthResponse)
+    :<|> Capture "name" Text :> Get '[JSON] (Maybe Person)
+    :<|> Capture "name" Text :> "sessions" :> SessionAPI
 
-type SessionAPI = Get '[JSON] [Entity LiftSession]
+type SessionAPI = Get '[JSON] [Entity Liftsession]
 
 userServer :: ServerT UserAPI AppM
-userServer = getUsers :<|> registerUser :<|> authenticateUser :<|> sessionServer
+userServer = getUsers :<|> registerUser :<|> authenticateUser :<|> (getUser :<|> sessionServer)
 
-sessionServer :: Int64 -> ServerT SessionAPI AppM
+sessionServer :: Text -> ServerT SessionAPI AppM
 sessionServer = getSessions
 
-getSessions :: Int64 -> AppM [Entity LiftSession]
+getSessions :: Text -> AppM [Entity Liftsession]
 getSessions i = runDb $ selectList [] []
 
 getUsers :: AppM [Person]
@@ -46,19 +48,24 @@ getUsers = do
     users <- listUsers Nothing
     return (map (userToPerson . snd) users)
 
+getUser :: Text -> AppM (Maybe Person)
+getUser k = runMaybeT $ do
+    userid <- MaybeT $ getUserIdByName k
+    user <- MaybeT $ getUserById userid
+    return $ userToPerson user
+
 registerUser :: Registration -> AppM (Either Text.Text Int64)
 registerUser reg = do
     let qlUser = convertRegistration reg
     user <- createUser qlUser
     return $ either (Left . Text.pack . show) (Right . fromSqlKey) user
 
-authenticateUser :: Auth -> AppM (Maybe SessionId)
-authenticateUser auth = do
-    env <- asks getEnv
-    pool <- liftIO $ makePool env
-    let p = WU.Persistent (`runSqlPool` pool)
-    a <- liftIO $ WU.authUser p (authEmail auth) (WU.PasswordPlain $ authPassword auth) 1200000
-    return a
+authenticateUser :: Auth -> AppM (Maybe AuthResponse)
+authenticateUser auth = runMaybeT $ do
+    sessionId <- MaybeT $ authUser (authEmail auth) (WU.PasswordPlain $ authPassword auth) 1200000
+    person <- MaybeT $ getUser (authEmail auth)
+    return $ AuthResponse sessionId person
+
 
 
 server :: ServerT QuickLiftAPI AppM
