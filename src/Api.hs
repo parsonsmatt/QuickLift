@@ -28,10 +28,14 @@ import qualified Web.Users.Types             as WU
 
 type QuickLiftAPI
     = "users" :> UserAPI
+    :<|> "lifters" :> LifterAPI
 
 type UserAPI = Get '[JSON] [Person]
     :<|> ReqBody '[JSON] Registration :> Post '[JSON] (Either Text.Text Int64)
     :<|> "login" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe AuthResponse)
+    :<|> "verify" :> ReqBody '[JSON] Text :> Post '[JSON] (Maybe AuthResponse)
+
+type LifterAPI = Get '[JSON] [Person]
     :<|> Capture "name" Text :> (Get '[JSON] Person
                             :<|> "sessions" :> SessionAPI)
 
@@ -39,8 +43,18 @@ type SessionAPI = Get '[JSON] [Entity Liftsession]
     :<|> Header "auth" Text :> ReqBody '[JSON] Liftsession :> Post '[JSON] (Either Text Int64)
 
 userServer :: ServerT UserAPI AppM
-userServer = getUsers :<|> registerUser :<|> authenticateUser :<|> (\t -> getUser t
-    :<|> sessionServer t)
+userServer = getUsers :<|> registerUser :<|> authenticateUser
+    :<|> verifyToken
+
+lifterServer :: ServerT LifterAPI AppM
+lifterServer = getUsers :<|> (\t -> getUser t :<|> sessionServer t)
+
+verifyToken :: Text -> AppM (Maybe AuthResponse)
+verifyToken sid = runMaybeT $ do
+    let session = WU.SessionId sid
+    userId <- MaybeT $ verifySession session 12000
+    user <- MaybeT $ getUserById userId
+    return (AuthResponse session (userToPerson userId user))
 
 sessionServer :: Text -> ServerT SessionAPI AppM
 sessionServer username = getSessions' :<|> createSession'
@@ -53,10 +67,9 @@ sessionServer username = getSessions' :<|> createSession'
         createSession' (Just sid) s = do
             loginId <- verifySession (WU.SessionId sid) 10
             user <- getUser username
-            if loginId == Just (personId user) then
-                createSession s user
-            else
-                lift $ left err401
+            if loginId == Just (personId user)
+               then createSession s user
+               else lift $ left err401
 
 getSessions :: Person -> AppM [Entity Liftsession]
 getSessions Person {..} =
@@ -97,7 +110,7 @@ authenticateUser auth = runMaybeT $ do
 
 
 server :: ServerT QuickLiftAPI AppM
-server = userServer
+server = userServer :<|> lifterServer
 
 quickliftAPI :: Proxy QuickLiftAPI
 quickliftAPI = Proxy
