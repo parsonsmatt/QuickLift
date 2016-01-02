@@ -1,9 +1,9 @@
-{-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds      #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TypeOperators  #-}
 
 module Api where
 
-import Debug.Trace
 import           Config
 import           Control.Monad
 import           Control.Monad.Reader
@@ -15,12 +15,13 @@ import qualified Data.Text                   as Text
 import qualified Data.Text.Encoding          as Text
 import           Database.Persist
 import           Database.Persist.Postgresql
+import           Debug.Trace
 import           Models
 import           Network.Wai
 import           Servant
-import qualified Web.Users.Types as WU
-import qualified Web.Users.Persistent as WU
 import           Users
+import qualified Web.Users.Persistent        as WU
+import qualified Web.Users.Types             as WU
 
 type QuickLiftAPI
     = "users" :> UserAPI
@@ -53,12 +54,8 @@ registerUser reg = do
     return $ either (Left . Text.pack . show) (Right . fromSqlKey) user
 
 authenticateUser :: Auth -> AppM (Maybe SessionId)
-authenticateUser auth = do
-    env <- asks getEnv
-    pool <- liftIO $ makePool env
-    let p = WU.Persistent (`runSqlPool` pool)
-    a <- liftIO $ WU.authUser p (authEmail auth) (WU.PasswordPlain $ authPassword auth) 1200000
-    return a
+authenticateUser Auth{ authEmail, authPassword }=
+    authUser authEmail (WU.PasswordPlain authPassword) 1200000
 
 
 server :: ServerT QuickLiftAPI AppM
