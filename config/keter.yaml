@@ -1,0 +1,5 @@
+exec: ../path/to/executable
+host: quicklift.parsonsmatt.org
+
+plugins:
+    postgres: true
