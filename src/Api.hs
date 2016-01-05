@@ -1,20 +1,20 @@
-{-# LANGUAGE DataKinds      #-}
-{-# LANGUAGE TypeOperators  #-}
+{-# LANGUAGE DataKinds       #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeOperators   #-}
 
 module Api where
 
 import           Config
 import           Control.Monad
 import           Control.Monad.Reader
-import Control.Monad.Trans.Maybe
 import           Control.Monad.Trans.Either
+import           Control.Monad.Trans.Maybe
 import           Crypto.PasswordStore
 import qualified Data.ByteString.Char8       as BS
 import           Data.Int
-import Data.Maybe
+import           Data.Maybe
+import           Data.Text                   (Text)
 import qualified Data.Text                   as Text
-import Data.Text (Text)
 import qualified Data.Text.Encoding          as Text
 import           Database.Persist
 import           Database.Persist.Postgresql
@@ -98,8 +98,7 @@ getUser k = do
 
 registerUser :: Registration -> AppM (Either Text.Text Int64)
 registerUser reg = do
-    let qlUser = convertRegistration reg
-    user <- createUser qlUser
+    user <- createUser (convertRegistration reg)
     return $ either (Left . Text.pack . show) (Right . fromSqlKey) user
 
 authenticateUser :: Auth -> AppM (Maybe AuthResponse)
