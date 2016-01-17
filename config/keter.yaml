@@ -1,0 +1,6 @@
+exec: ../quicklift-exe
+host: quicklift.parsonsmatt.org
+requires-secure: false
+
+plugins:
+    postgres: true

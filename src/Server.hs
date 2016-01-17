@@ -3,7 +3,6 @@ module Server where
 import           Control.Monad               (liftM)
 import           Database.Persist.Postgresql (runSqlPool)
 import           Network.Wai.Handler.Warp    (run)
-import           System.Environment          (lookupEnv)
 import           Web.Users.Types             (initUserBackend)
 import           Web.Users.Persistent        (Persistent(..))
 
@@ -12,6 +11,7 @@ import           Config                      (Config (..), Environment (..),
                                               defaultConfig, makePool,
                                               setLogger)
 import           Models                      (doMigrations)
+import Util
 
 
 quickLift :: IO ()
@@ -24,6 +24,3 @@ quickLift = do
     runSqlPool doMigrations pool
     initUserBackend (Persistent (`runSqlPool` pool))
     run port $ logger $ app cfg
-
-lookupSetting :: Read a => String -> a -> IO a
-lookupSetting env def = maybe def read <$> lookupEnv env

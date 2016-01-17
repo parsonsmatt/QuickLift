@@ -37,6 +37,7 @@ library
         , Authentication
         , Users
         , Users.TH
+        , Util
 
   -- other-extensions:
     build-depends:

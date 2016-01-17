@@ -2,7 +2,9 @@ flags: {}
 packages:
     - '.'
     - location: '../users/users-persistent'
-    # extra-dep: true
+      extra-dep: true
+    - location: '../users/users/'
+      extra-dep: true
 extra-deps:
 - 'megaparsec-4.1.1'
 resolver: lts-3.8

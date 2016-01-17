@@ -1,4 +1,6 @@
 dist
+**/*.keter
+**/*.log
 .stack-work/
 cabal-dev
 *.o
