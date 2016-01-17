@@ -1,5 +1,8 @@
-exec: ../path/to/executable
-host: quicklift.parsonsmatt.org
+stanzas:
+    - type: webapp
+      exec: ../path/to/executable
+      host: quicklift.parsonsmatt.org
 
+      requires-secure: false
 plugins:
     postgres: true
