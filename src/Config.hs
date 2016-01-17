@@ -3,20 +3,20 @@
 module Config where
 
 import           Control.Monad.Logger
-import           System.Environment          (lookupEnv)
 import           Control.Monad.Reader
-import Control.Monad.Trans.Maybe
-import Data.Monoid ((<>))
-import qualified Data.ByteString.Char8 as BS
-import Data.ByteString (ByteString)
-import           Servant
 import           Control.Monad.Trans.Either
+import           Control.Monad.Trans.Maybe
+import           Data.ByteString                      (ByteString)
+import qualified Data.ByteString.Char8                as BS
+import           Data.Monoid                          ((<>))
 import           Network.Wai
 import           Network.Wai.Middleware.RequestLogger
+import           Servant
+import           System.Environment                   (lookupEnv)
 
 import           Database.Persist.Postgresql
 
-import Util
+import           Util
 
 data Config
     = Config
