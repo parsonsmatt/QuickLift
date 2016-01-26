@@ -56,7 +56,6 @@ data Auth
     = Auth
     { authEmail :: Text
     , authPassword :: Text
-    , authConfirmation :: Text
     } deriving (Eq, Show)
 
 deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 4, constructorTagModifier = map toLower } ''Auth
