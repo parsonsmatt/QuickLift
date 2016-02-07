@@ -31,7 +31,7 @@ type QuickLiftAPI
     :<|> "lifters" :> LifterAPI
 
 type UserAPI = Get '[JSON] [Person]
-    :<|> ReqBody '[JSON] Registration :> Post '[JSON] (Either Text.Text Int64)
+    :<|> ReqBody '[JSON] Registration :> Post '[JSON] (Either Text.Text AuthResponse)
     :<|> "login" :> ReqBody '[JSON] Auth :> Post '[JSON] (Maybe AuthResponse)
     :<|> "verify" :> ReqBody '[JSON] Text :> Post '[JSON] (Maybe AuthResponse)
 
@@ -96,15 +96,20 @@ getUser k = do
          Nothing -> lift $ left err404
          Just person -> return person
 
-registerUser :: Registration -> AppM (Either Text.Text Int64)
+registerUser :: Registration -> AppM (Either Text.Text AuthResponse)
 registerUser reg = do
     let qlUser = convertRegistration reg
+        auth = (Auth <$> regEmail <*> regPassword) reg
     user <- createUser qlUser
-    return $ either (Left . Text.pack . show) (Right . fromSqlKey) user
+    case user of
+         Left e -> return . Left . Text.pack . show $ 3
+         Right u -> do
+             Just authResp <- authenticateUser auth
+             return . return $ authResp
 
 authenticateUser :: Auth -> AppM (Maybe AuthResponse)
 authenticateUser auth = runMaybeT $ do
-    sessionId <- MaybeT $ authUser (authEmail auth) (WU.PasswordPlain $ authPassword auth) 1200000
+    sessionId <- MaybeT $ authUser (authEmail auth) (WU.PasswordPlain $ authPassword auth) 12000000
     person <- lift $ getUser (authEmail auth)
     return $ AuthResponse sessionId person
 
