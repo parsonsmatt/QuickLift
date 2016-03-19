@@ -1,6 +1,6 @@
 # QuickLift
 
-[![Build Status](https://travis-ci.org/parsonsmatt/quicklift.svg?branch=master)](https://travis-ci.org/parsonsmatt/quicklift)
+[![Build Status](https://travis-ci.org/parsonsmatt/QuickLift.svg?branch=master)](https://travis-ci.org/parsonsmatt/QuickLift)
 
 QuickLift is a web app for logging weightlifting sessions.
 
