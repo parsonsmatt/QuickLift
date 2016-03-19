@@ -6,7 +6,7 @@ import           Control.Lens
 import           Data.List             (genericReplicate)
 import           Data.Text             (Text)
 import qualified Data.Text             as T
-import           Text.Megaparsec
+import           Text.Megaparsec       as M
 import qualified Text.Megaparsec.Lexer as L
 
 data Lift
@@ -24,7 +24,10 @@ data Set
 makeLenses ''Lift
 makeLenses ''Set
 
-data Session = Session [Lift] deriving Show
+data Session = Session [Lift] deriving (Eq, Show)
+
+parse :: Parsec Text a -> String -> Text -> Either ParseError a
+parse = M.parse
 
 session :: Parsec Text Session
 session = Session <$> many liftParser
@@ -33,7 +36,7 @@ liftParser :: Parsec Text Lift
 liftParser = Lift <$> liftName <*> liftSets
 
 liftName :: Parsec Text Text
-liftName = T.pack <$> someTill anyChar (char ':') <* space
+liftName = T.pack <$> (space *> someTill anyChar (char ':') <* space)
 
 liftSets :: Parsec Text [Set]
 liftSets = concat <$> many setLine
