@@ -4,7 +4,7 @@ module Config where
 
 import           Control.Monad.Logger
 import           Control.Monad.Reader
-import           Control.Monad.Trans.Either
+import Control.Monad.Except
 import           Control.Monad.Trans.Maybe
 import           Data.ByteString                      (ByteString)
 import qualified Data.ByteString.Char8                as BS
@@ -24,7 +24,7 @@ data Config
     , getEnv  :: Environment
     }
 
-type AppM = ReaderT Config (EitherT ServantErr IO)
+type AppM = ReaderT Config (ExceptT ServantErr IO)
 
 data Environment
     = Development

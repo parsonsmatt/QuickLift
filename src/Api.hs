@@ -8,7 +8,8 @@ import           Config
 import           Control.Monad
 import           Control.Monad.Reader
 import Control.Monad.Trans.Maybe
-import           Control.Monad.Trans.Either
+import Control.Monad.Except
+import Control.Monad.Trans.Except
 import           Crypto.PasswordStore
 import qualified Data.ByteString.Char8       as BS
 import           Data.Int
@@ -63,13 +64,13 @@ sessionServer username = getSessions' :<|> createSession'
         getSessions' = getUser username >>= getSessions
 
         createSession' :: Maybe Text -> Liftsession -> AppM (Either Text Int64)
-        createSession' Nothing _ = lift $ left err401
+        createSession' Nothing _ = lift $ throwE err401
         createSession' (Just sid) s = do
             loginId <- verifySession (WU.SessionId sid) 10
             user <- getUser username
             if loginId == Just (personId user)
                then createSession s user
-               else lift $ left err401
+               else lift $ throwE err401
 
 getSessions :: Person -> AppM [Entity Liftsession]
 getSessions Person {..} =
@@ -93,7 +94,7 @@ getUser k = do
         user <- MaybeT $ getUserById userid
         return $ userToPerson userid user
     case person of
-         Nothing -> lift $ left err404
+         Nothing -> lift $ throwE err404
          Just person -> return person
 
 registerUser :: Registration -> AppM (Either Text.Text AuthResponse)
