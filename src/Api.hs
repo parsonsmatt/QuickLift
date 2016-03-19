@@ -1,21 +1,21 @@
-{-# LANGUAGE DataKinds      #-}
-{-# LANGUAGE TypeOperators  #-}
+{-# LANGUAGE DataKinds       #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeOperators   #-}
 
 module Api where
 
 import           Config
 import           Control.Monad
+import           Control.Monad.Except
 import           Control.Monad.Reader
-import Control.Monad.Trans.Maybe
-import Control.Monad.Except
-import Control.Monad.Trans.Except
+import           Control.Monad.Trans.Except
+import           Control.Monad.Trans.Maybe
 import           Crypto.PasswordStore
 import qualified Data.ByteString.Char8       as BS
 import           Data.Int
-import Data.Maybe
+import           Data.Maybe
+import           Data.Text                   (Text)
 import qualified Data.Text                   as Text
-import Data.Text (Text)
 import qualified Data.Text.Encoding          as Text
 import           Database.Persist
 import           Database.Persist.Postgresql
@@ -93,9 +93,7 @@ getUser k = do
         userid <- MaybeT $ getUserIdByName k
         user <- MaybeT $ getUserById userid
         return $ userToPerson userid user
-    case person of
-         Nothing -> lift $ throwE err404
-         Just person -> return person
+    maybe (lift $ throwE err404) return person
 
 registerUser :: Registration -> AppM (Either Text.Text AuthResponse)
 registerUser reg = do

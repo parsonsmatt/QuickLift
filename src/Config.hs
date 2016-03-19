@@ -6,7 +6,6 @@ import           Control.Monad.Logger
 import           Control.Monad.Reader
 import Control.Monad.Except
 import           Control.Monad.Trans.Maybe
-import           Data.ByteString                      (ByteString)
 import qualified Data.ByteString.Char8                as BS
 import           Data.Monoid                          ((<>))
 import           Network.Wai
@@ -15,8 +14,6 @@ import           Servant
 import           System.Environment                   (lookupEnv)
 
 import           Database.Persist.Postgresql
-
-import           Util
 
 data Config
     = Config

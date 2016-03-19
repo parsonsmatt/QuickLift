@@ -48,6 +48,7 @@ library
         , lens
         , megaparsec
         , monad-logger
+        , monad-control
         , mtl
         , persistent
         , persistent-postgresql

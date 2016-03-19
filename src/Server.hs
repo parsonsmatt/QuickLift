@@ -25,4 +25,4 @@ quickLift = do
         middlewares = gzip def { gzipFiles = GzipCompress } . logger
     runSqlPool doMigrations pool
     initUserBackend (Persistent (`runSqlPool` pool))
-    run port $ middlewares $ app cfg
+    run port . middlewares $ app cfg

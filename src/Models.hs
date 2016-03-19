@@ -21,7 +21,7 @@ import Control.Monad.Reader
 import Database.Persist.Postgresql
 import Database.Persist.TH
 import Data.Aeson.TH
-import qualified Data.Text as Text
+import Control.Monad.Trans.Control
 import Data.Text (Text())
 import Data.Char (toLower)
 import Data.Time
@@ -66,8 +66,9 @@ doMigrations = runMigration migrateAll
 runDb :: (MonadIO m, MonadReader Config m) => SqlPersistT IO b -> m b
 runDb query = asks getPool >>= liftIO . runSqlPool query
 
+db :: (MonadIO m, MonadBaseControl IO m) => SqlPersistM a -> m a
 db query =
-    runStderrLoggingT $
+    runStderrLoggingT .
         withPostgresqlPool (connStr Development) 1 $
             liftIO . runSqlPersistMPool query
 

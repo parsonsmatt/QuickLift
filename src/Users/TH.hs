@@ -2,15 +2,14 @@
 
 module Users.TH where
 
-import Database.Persist.TH
-import Control.Monad
-import Control.Monad.Reader
+import           Control.Monad
+import           Control.Monad.Reader (liftIO)
+import           Database.Persist.TH  ()
 
-import Language.Haskell.TH
-import Language.Haskell.TH.Syntax
+import           Language.Haskell.TH
 
-import Web.Users.Persistent
-import Web.Users.Types
+import           Web.Users.Persistent ()
+import           Web.Users.Types
 
 functionLevels :: Type -> Int
 functionLevels = go 0
