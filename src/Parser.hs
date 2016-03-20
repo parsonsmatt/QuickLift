@@ -1,16 +1,16 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase      #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Parser where
 
 import           Control.Lens
+import           Control.Monad.Loops
 import           Data.List             (genericReplicate)
 import           Data.Scientific
 import           Data.Text             (Text)
 import qualified Data.Text             as T
 import           Text.Megaparsec       as M
 import qualified Text.Megaparsec.Lexer as L
-import Data.Function
 
 data Lift
     = Lift
@@ -42,26 +42,24 @@ liftName :: Parsec Text Text
 liftName = T.pack <$> (space' *> someTill anyChar (char ':') <* space)
 
 liftSets :: Parsec Text [Set]
-liftSets = concat <$> setLine `sepBy` eol
+liftSets = concat <$> setLine `sepEndBy` eol
 
 setLine :: Parsec Text [Set]
 setLine = do
-    weight' <- decimal <?> "Attempting to get weight"
+    weight' <- decimal <?> "weight"
     firstOff <- repsxsets
-    reps'repeats <- fix $ \go -> repsxsets >>= \case
-                                               (1,1) -> return []
-                                               this  -> (this :) <$> go
+    reps'repeats <- unfoldWhileM (/= (1, 1)) repsxsets
     let sets' = firstOff : reps'repeats >>= uncurry (flip genericReplicate)
     return . map (Set weight') $ sets'
 
 repsxsets :: Parsec Text (Integer, Integer)
 repsxsets = do
-    reps_ <- xThenInt <?> "Trying to get the reps..."
-    repeats <- xThenInt <* skipComma <?> "Trying to get the repeats."
+    reps_ <- xThenInt <?> "reps"
+    repeats <- xThenInt <* skipComma <?> "repeats"
     return (reps_, repeats)
 
 xThenInt :: Parsec Text Integer
-xThenInt = option 1 $ try (space' >> skipChar 'x' >> integer)
+xThenInt = option 1 $ (space' >> skipChar 'x' >> integer)
 
 lexeme :: Parsec Text a -> Parsec Text a
 lexeme = L.lexeme space'

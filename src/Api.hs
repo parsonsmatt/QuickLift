@@ -85,7 +85,7 @@ createSession ls person = do
 getUsers :: AppM [Person]
 getUsers = do
     users <- listUsers Nothing
-    return (map (uncurry userToPerson) users)
+    return (fmap (uncurry userToPerson) users)
 
 getUser :: Text -> AppM Person
 getUser k = do

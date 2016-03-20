@@ -11,7 +11,7 @@ import Data.Either
 import Parser
 
 spec :: Spec
-spec = describe "Parser" $ do
+spec = do
     describe "liftName" $ do
         let p = parse liftName ""
         it "parses a lift name" $ do
@@ -98,7 +98,6 @@ Squat:
 |]
             p s `shouldBe` Right (Session [ex])
         it "parses two lifts" $ do
-            pendingWith "Fails, attempting to parse 'Squat' as another set of the first one."
             let s = [embed|
 Squat:
 100

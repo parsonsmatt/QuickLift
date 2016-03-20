@@ -48,6 +48,7 @@ library
         , lens
         , megaparsec
         , monad-control
+        , monad-loops
         , monad-logger
         , mtl
         , persistent
