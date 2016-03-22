@@ -2,9 +2,9 @@
 
 module Config where
 
+import           Control.Monad.Except
 import           Control.Monad.Logger
 import           Control.Monad.Reader
-import Control.Monad.Except
 import           Control.Monad.Trans.Maybe
 import qualified Data.ByteString.Char8                as BS
 import           Data.Monoid                          ((<>))
@@ -46,7 +46,7 @@ makePool Test = runNoLoggingT $ createPostgresqlPool (connStr Test) (envPool Tes
 makePool Development = runStdoutLoggingT $ createPostgresqlPool (connStr Development) (envPool Development)
 makePool Production = do
     pool <- runMaybeT $ do
-        let keys = map BS.pack
+        let keys = fmap BS.pack
                    [ "host="
                    , "port="
                    , "user="
@@ -59,7 +59,7 @@ makePool Production = do
                    , "PGPASS"
                    , "PGDATABASE"
                    ]
-        prodStr <- mconcat . zipWith (<>) keys . map BS.pack
+        prodStr <- mconcat . zipWith (<>) keys . fmap BS.pack
                   <$> traverse (MaybeT . lookupEnv) envs
         runStdoutLoggingT $ createPostgresqlPool prodStr (envPool Production)
     case pool of

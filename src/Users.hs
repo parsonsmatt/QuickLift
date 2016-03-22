@@ -6,15 +6,11 @@ module Users where
 
 import           Control.Monad               ()
 import           Control.Monad.Reader
-import           Data.Aeson
 import           Data.Aeson.TH
 import           Data.Int
 import           Data.Text                   (Text ())
-import           Data.Time
-import           Database.Persist
 import           Database.Persist.Postgresql
 import           GHC.Generics
-import           Language.Haskell.TH
 import qualified Web.Users.Persistent        as WU
 import qualified Web.Users.Types             as WU
 

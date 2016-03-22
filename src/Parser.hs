@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase      #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Parser where
@@ -50,7 +49,7 @@ setLine = do
     firstOff <- repsxsets
     reps'repeats <- unfoldWhileM (/= (1, 1)) repsxsets
     let sets' = firstOff : reps'repeats >>= uncurry (flip genericReplicate)
-    return . map (Set weight') $ sets'
+    return . fmap (Set weight') $ sets'
 
 repsxsets :: Parsec Text (Integer, Integer)
 repsxsets = do

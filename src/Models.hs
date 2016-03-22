@@ -1,34 +1,34 @@
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
-{-# LANGUAGE RankNTypes                 #-}
-{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE RankNTypes                 #-}
+{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE RecordWildCards            #-}
-{-# LANGUAGE DeriveGeneric              #-}
 
 module Models where
 
-import Data.Aeson
-import Control.Monad.Logger (runStderrLoggingT)
-import GHC.Generics
-import Control.Monad.Reader
-import Database.Persist.Postgresql
-import Database.Persist.TH
-import Data.Aeson.TH
-import Control.Monad.Trans.Control
-import Data.Text (Text())
-import Data.Char (toLower)
-import Data.Time
-import Web.Users.Types
-import Web.Users.Persistent
+import           Control.Monad.Logger        (runStderrLoggingT)
+import           Control.Monad.Reader
+import           Control.Monad.Trans.Control
+import           Data.Aeson
+import           Data.Aeson.TH
+import           Data.Char                   (toLower)
+import           Data.Text                   (Text ())
+import           Data.Time
+import           Database.Persist.Postgresql
+import           Database.Persist.TH
+import           GHC.Generics
+import           Web.Users.Persistent
+import           Web.Users.Types
 
-import Config
+import           Config
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Liftsession json
@@ -44,9 +44,9 @@ Profile json
 
 data Registration
     = Registration
-    { regName :: Text
-    , regEmail :: Text
-    , regPassword :: Text
+    { regName         :: Text
+    , regEmail        :: Text
+    , regPassword     :: Text
     , regConfirmation :: Text
     } deriving (Eq, Show)
 
@@ -54,7 +54,7 @@ deriveJSON defaultOptions { fieldLabelModifier = map toLower . Prelude.drop 3, c
 
 data Auth
     = Auth
-    { authEmail :: Text
+    { authEmail    :: Text
     , authPassword :: Text
     } deriving (Eq, Show)
 
@@ -74,8 +74,8 @@ db query =
 
 
 data Person = Person
-    { name :: Text
-    , email :: Text
+    { name     :: Text
+    , email    :: Text
     , personId :: LoginId
     } deriving (Eq, Show, Generic)
 
@@ -105,7 +105,7 @@ convertRegistration Registration{..} =
 data AuthResponse
     = AuthResponse
     { sessionId :: SessionId
-    , person :: Person
+    , person    :: Person
     } deriving (Eq, Show, Generic)
 
 instance ToJSON AuthResponse
