@@ -4,15 +4,15 @@ import           Control.Monad               (liftM)
 import           Database.Persist.Postgresql (runSqlPool)
 import           Network.Wai.Handler.Warp    (run)
 import           Network.Wai.Middleware.Gzip
+import           Web.Users.Persistent        (Persistent (..))
 import           Web.Users.Types             (initUserBackend)
-import           Web.Users.Persistent        (Persistent(..))
 
 import           Api                         (app)
 import           Config                      (Config (..), Environment (..),
                                               defaultConfig, makePool,
                                               setLogger)
 import           Models                      (doMigrations)
-import Util
+import           Util
 
 
 quickLift :: IO ()
@@ -25,4 +25,4 @@ quickLift = do
         middlewares = gzip def { gzipFiles = GzipCompress } . logger
     runSqlPool doMigrations pool
     initUserBackend (Persistent (`runSqlPool` pool))
-    run port $ middlewares $ app cfg
+    run port . middlewares $ app cfg
